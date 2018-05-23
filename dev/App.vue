@@ -1,7 +1,6 @@
 <template>
   <div class="app" :class="{'align-right': alignRight}">
     <div v-if="showDatepickers">
-
       <div class="datepicker-container with-input">
         <h3>Range datepicker with input</h3>
         <div class="datepicker-trigger">
@@ -17,7 +16,9 @@
             :mode="'range'"
             :date-one="inputDateOne"
             :date-two="inputDateTwo"
-            :min-date="'2018-02-28'"
+            :min-date="parse('2018-02-28')"
+            :open-on-focus="true"
+
             :months-to-show="2"
             :show-action-buttons="true"
             @date-one-selected="val => { inputDateOne = val }"
@@ -60,7 +61,7 @@
             :mode="'range'"
             :date-one="buttonDateOne"
             :date-two="buttonDateTwo"
-            :min-date="'2018-04-18'"
+            :min-date="parse('2018-04-18')"
             :fullscreen-mobile="true"
             :months-to-show="2"
             :trigger="trigger"
@@ -88,15 +89,113 @@
           :fullscreen-mobile="false"
           :date-one="inlineDateOne"
           :months-to-show="2"
-          :disabled-dates="['2018-04-30', '2018-05-10', '2018-12-14']"
+          :disabled-dates="[parse('2018-04-30'), parse('2018-05-10'), parse('2018-12-14')]"
           @date-one-selected="val => { inlineDateOne = val }"
           @apply="applyMethod"
           @closed="closedMethod"
         />
       </div>
+
+      <div class="monthpicker-container datepicker-container with-input">
+        <h3>Range monthpicker with input</h3>
+        <div class="monthpicker-trigger">
+          <input
+            type="text"
+            id="monthpicker-input-trigger"
+            :value="formatMonths(inputDateOne,inputDateTwo)"
+            placeholder="Select dates"
+          >
+
+          <airbnb-style-monthpicker
+            :trigger-element-id="'monthpicker-input-trigger'"
+            :month-one="parse('2018-02')"
+            :month-two="''"
+            :mode="'range'"
+
+            :min-date="parse('2018-02')"
+            :months-to-show="2"
+            :show-action-buttons="true"
+            @date-one-selected="val => { inputDateOne = val }"
+            @date-two-selected="val => { inputDateTwo = val }"
+            @apply="applyMethod"
+            @closed="closedMethod"
+          />
+        </div>
+      </div>
+
+      <div class="monthpicker-container single-with-input">
+        <h3>Single monthpicker with input</h3>
+        <div class="monthpicker-trigger">
+          <input
+            type="text"
+            id="monthpicker-input-single-trigger"
+            :value="formatMonths(inputSingleDateOne)"
+            placeholder="Select dates"
+          >
+
+          <airbnb-style-monthpicker
+            :trigger-element-id="'monthpicker-input-single-trigger'"
+            :mode="'single'"
+            :months-to-show="2"
+            @date-one-selected="val => { inputSingleDateOne = val }"
+            @apply="applyMethod"
+            @closed="closedMethod"
+          />
+        </div>
+      </div>
+
+      <div class="monthpicker-container with-button">
+        <h3>Range monthpicker with button</h3>
+        <div class="monthpicker-trigger">
+          <button id="monthpicker-button-trigger">{{ formatMonths(buttonDateOne, buttonDateTwo) || 'Select dates' }}</button>
+
+          <airbnb-style-monthpicker
+            :month-one="''"
+            :month-two="''"
+            :min-date="parse(new Date())"
+            :max-date="parse('2018-12')"
+            :trigger-element-id="'monthpicker-button-trigger'"
+            :mode="'range'"
+            :inline="false"
+            :fullscreen-mobile="true"
+            :months-to-show="2"
+            :trigger="trigger"
+            :offset-y="10"
+            @date-one-selected="val => { buttonDateOne = val }"
+            @date-two-selected="val => { buttonDateTwo = val }"
+            @apply="applyMethod"
+            @closed="closedMethod"
+          />
+        </div>
+      </div>
+
+      <div class="monthpicker-container inline-with-input">
+        <h3>Inline monthpicker with input</h3>
+        <input
+          id="monthpicker-inline-trigger"
+          :value="formatMonths(inputDateOne)"
+          type="text"
+          placeholder="Select date"
+        >
+        <airbnb-style-monthpicker
+          :trigger-element-id="'monthpicker-inline-trigger'"
+          :month-one="parse('2018-05')"
+          :min-date="parse('2018-04')"
+          :mode="'single'"
+          :inline="true"
+          :fullscreen-mobile="false"
+          :months-to-show="2"
+          :disabled-months="[parse('2018-06')]"
+          @date-one-selected="val => { inputDateOne = val }"
+          @date-two-selected="val => { inputDateTwo = val }"
+          @apply="applyMethod"
+          @closed="closedMethod"
+        />
+      </div>
+
     </div>
 
-    <button @click="toggleDatepickers">Hide datepickers</button>
+    <button @click="toggleDatepickers">Hide monthpickers</button>
     <button @click="toggleAlign">Toggle alignment</button>
     <button @click="toggleTrigger">Toggle trigger</button>
   </div>
@@ -104,18 +203,20 @@
 
 <script>
 import format from 'date-fns/format'
+import parse from 'date-fns/parse'
+var es = require('date-fns/locale/es')
 
 export default {
   data() {
     return {
-      dateFormat: 'YYYY-MM-DD', //'D MMM',
+      dateFormat: 'DD MMMM YYYY', //'D MMM',
+      monthFormat: 'MMMM YYYY', //'D MMM',
       inputDateOne: '',
       inputDateTwo: '',
       inputSingleDateOne: '',
       buttonDateOne: '',
       buttonDateTwo: '',
       inlineDateOne: '',
-      sundayDateOne: '',
       sundayFirst: false,
       alignRight: false,
       showDatepickers: true,
@@ -130,13 +231,26 @@ export default {
     // }, 5000)
   },
   methods: {
+    parse(date) {
+      return parse(date)
+    },
     formatDates(dateOne, dateTwo) {
       let formattedDates = ''
       if (dateOne) {
-        formattedDates = format(dateOne, this.dateFormat)
+        formattedDates = format(dateOne, this.dateFormat, { locale: es })
       }
       if (dateTwo) {
-        formattedDates += ' - ' + format(dateTwo, this.dateFormat)
+        formattedDates += ' - ' + format(dateTwo, this.dateFormat, { locale: es })
+      }
+      return formattedDates
+    },
+    formatMonths(dateOne, dateTwo) {
+      let formattedDates = ''
+      if (dateOne) {
+        formattedDates = format(dateOne, this.monthFormat, {locale: es})
+      }
+      if (dateTwo) {
+        formattedDates += ' - ' + format(dateTwo, this.monthFormat, {locale: es})
       }
       return formattedDates
     },
@@ -166,7 +280,7 @@ body {
   min-height: 200vh;
   font-size: 14px;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   line-height: 18px;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -181,11 +295,11 @@ h1 {
   font-size: 1.8em;
   line-height: 1.5em;
 }
-.datepicker-container {
+.monthpicker-container,.datepicker-container {
   margin-bottom: 30px;
 }
 
-#datepicker-button-trigger {
+#monthpicker-button-trigger,#datepicker-button-trigger {
   background: #008489;
   border: 1px solid #008489;
   color: white;
@@ -201,19 +315,19 @@ input {
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
 .with-input {
-  .datepicker-trigger {
+  .monthpicker-trigger,.datepicker-trigger {
     //padding-right: 40px;
   }
 }
 .with-button {
-  .datepicker-trigger {
+  .monthpicker-trigger,.datepicker-trigger {
     //padding-left: 10px;
   }
 }
 // .inline-with-input {
-//   width: 600px;
-//   input {
-//     width: 100%;
-//   }
-// }
+  //   width: 600px;
+  //   input {
+    //     width: 100%;
+    //   }
+    // }
 </style>
