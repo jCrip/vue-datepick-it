@@ -34,7 +34,36 @@ Vue.use(AirBnbStyleDatepicker, {
   }
 })
 
-Vue.use(AirBnbStyleMonthpicker)
+Vue.use(AirBnbStyleMonthpicker, {
+  monthNames: [
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre'
+  ],
+  monthNamesShort: [
+    'Ene',
+    'Feb',
+    'Mar',
+    'Abr',
+    'May',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ]
+})
 
 // eslint-disable-next-line
 new Vue({

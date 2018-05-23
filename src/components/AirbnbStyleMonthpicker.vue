@@ -117,11 +117,10 @@ export default {
     offsetY: { type: Number, default: 0 },
     offsetX: { type: Number, default: 0 },
     yearsToShow: { type: Number, default: 2 },
-    startOpen: { type: Boolean },
-    fullscreenMobile: { type: Boolean },
-    inline: { type: Boolean },
+    startOpen: { type: Boolean, default: false },
+    fullscreenMobile: { type: Boolean, default: true },
+    inline: { type: Boolean, default: false },
     mobileHeader: { type: String, default: 'Select date' },
-    disabledDates: { type: Array, default: () => [] },
     disabledMonths: { type: Array, default: () => [] },
     showActionButtons: { type: Boolean, default: true },
     isTest: {
@@ -159,14 +158,14 @@ export default {
         'December'
       ],
       monthNamesShort: [
-        'Ene',
+        'Jan',
         'Feb',
         'Mar',
-        'Abr',
+        'Apr',
         'May',
         'Jun',
         'Jul',
-        'Ago',
+        'Aug',
         'Sep',
         'Oct',
         'Nov',
@@ -178,7 +177,7 @@ export default {
       },
       startingYear: '',
       years: [],
-      width: 300,
+      width: 340,
       selectedDate1: '',
       selectedDate2: '',
       isSelectingDate1: true,
@@ -453,7 +452,7 @@ export default {
       }
       const formattedDate = format(valueAsDateObject, this.monthFormat)
       if (
-        this.isDateDisabled(formattedDate) ||
+        this.isMonthDisabled(formattedDate) ||
         this.isBeforeMinDate(formattedDate) ||
         this.isAfterMaxDate(formattedDate)
       ) {
@@ -512,6 +511,9 @@ export default {
       if (this.$options.monthNames && this.$options.monthNames.length === 12) {
         this.monthNames = copyObject(this.$options.monthNames)
       }
+      if (this.$options.monthNamesShort && this.$options.monthNamesShort.length === 12) {
+        this.monthNamesShort = copyObject(this.$options.monthNamesShort)
+      }
       if (this.$options.texts) {
         const texts = copyObject(this.$options.texts)
         this.texts.apply = texts.apply || this.texts.apply
@@ -556,7 +558,7 @@ export default {
       if (
         this.isBeforeMinDate(month.firstDay) ||
       this.isAfterMaxDate(month.firstDay) ||
-      this.isDateDisabled(month.firstDay)) {
+      this.isMonthDisabled(month.firstDay)) {
         return
       }
 
@@ -615,10 +617,6 @@ export default {
         return false
       }
       return isAfter(month.firstDay, this.maxDate)
-    },
-    isDateDisabled(date) {
-      const isDisabled = this.disabledDates.indexOf(date) > -1
-      return isDisabled
     },
     isMonthDisabled(month) {
       for (var i = this.disabledMonths.length - 1; i >= 0; i--) {
