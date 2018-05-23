@@ -93,8 +93,9 @@ describe('AirbnbStyleMonthpicker', () => {
 
   describe('methods', () => {
     test('getYear() returns correct values', () => {
-      let year = wrapper.vm.getYear('2017-12-01')
-      expect(year.name).toBe('2017')
+      const wrapper = createMonthPickerInstance()
+      let year = wrapper.vm.getYear(new Date('2017-12-01'))
+      expect(year.name).toBe(2017)
       expect(year.months.length).toBeGreaterThan(0)
     })
     test('getMonths() returns correct values', () => {
@@ -155,9 +156,9 @@ describe('AirbnbStyleMonthpicker', () => {
       })
     })
     test('year of minMonth is shown first', () => {
-      wrapper = createMonthPickerInstance({ minMonth: 'mayo 2020' })
+      wrapper = createMonthPickerInstance({ minDate: new Date('2020-05-01') })
       const firstVisibleYear = wrapper.vm.years[1]
-      expect(firstVisibleYear.name).toBe('2020')
+      expect(firstVisibleYear.name).toBe(2020)
     })
     test('emits closed event on monthpicker close', () => {
       wrapper = createMonthPickerInstance()
@@ -214,38 +215,31 @@ describe('AirbnbStyleMonthpicker', () => {
     test('disabled months are not selectable', () => {
       wrapper = createMonthPickerInstance({
         mode: 'single',
-        monthOne: 'January 2010',
-        disabledMonths: ['March 2010'],
-        openOnFocus: true
-      })
-      wrapper.vm.triggerElement.dispatchEvent(new Event('focus'))
-      wrapper.update()
-      let date = new Date('March 2010')
-      const disabledMonth = wrapper.find('.asd__month-button[data-date="' + date + '"]')
-      expect(disabledMonth.classes()).toContain('asd__month-button--disabled')
-
-      disabledMonth.trigger('click')
-      expect(wrapper.emitted()['date-one-selected'][0]).not.toEqual([
-        date
-      ])
-    })
-    test('date are set if user types a valid date in input', () => {
-      wrapper = createMonthPickerInstance({
-        mode: 'single',
-        dateOne: ''
+        monthOne: parse('2018-01'),
+        disabledMonths: [parse('2018-03')]
       })
       wrapper.setData({ showMonthpicker: true })
-      wrapper.vm.handleTriggerInput({ target: { value: '2018-11-23' } })
-      expect(parse(wrapper.vm.selectedDate1)).toEqual(parse('2018-11-01'))
+      const disabledMonth = wrapper.find('.asd__month-button[data-date="2018-03"]')
+      expect(disabledMonth.classes()).toContain('asd__month-button--disabled')
+      disabledMonth.trigger('click')
+      expect(wrapper.vm.selectedDate1).not.toEqual(startOfMonth(parse('2018-03')))
     })
-    // test('opens datepicker on focus', () => {
+    test('month are set if user types a valid date in input', () => {
+      wrapper = createMonthPickerInstance({
+        mode: 'single',
+        monthOne: parse('2018-01')
+      })
+      wrapper.setData({ showMonthpicker: true })
+      wrapper.vm.handleTriggerInput({ target: { value: '2018-01' } })
+      expect(parse(wrapper.vm.selectedDate1)).toEqual(parse('2018-01'))
+    })
+    // test('opens monthpicker on focus', () => {
     //   wrapper = createMonthPickerInstance({
     //     mode: 'single',
     //     dateOne: '',
     //     openOnFocus: true
     //   })
-    //   wrapper.vm.triggerElement.dispatchEvent(new Event('focus'))
-    //   wrapper.update()
+    //   wrapper.vm.triggerElement.trigger('focus')
     //   expect(wrapper.classes()).toContain('monthpicker-open')
     // })
   })

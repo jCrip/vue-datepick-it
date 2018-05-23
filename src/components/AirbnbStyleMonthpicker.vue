@@ -29,7 +29,7 @@
         <div class="asd__inner-wrapper" :style="innerStyles">
           <transition-group name="asd__list-complete" tag="div">
             <div
-              v-for="(year, yearIndex) in years"
+              v-for="(year,yearIndex) in years"
               :key="year.name"
               class="asd__month"
               :class="{hidden: yearIndex === 0 || yearIndex > showYears}"
@@ -39,8 +39,8 @@
               <div class="asd__months-list">
                 <div
                   class="asd__month-item"
-                  v-for="(month,mnthIndx) in year.months"
-                  :key="mnthIndx"
+                  v-for="month in year.months"
+                  :key="`${year.name}-${month.name}`"
                   :class="{
                     'asd__month-item--disabled': isDisabled(month),
                     'asd__month-item--enabled' : !isDisabled(month),
@@ -61,7 +61,7 @@
                       'asd__month-item--selected': isSameMonth(selectedDate1 , month.firstDay) || isSameMonth(selectedDate2 , month.lastDay),
                       'asd__month-item--in-range': isInRange(month)
                     }"
-                    :data-date="month.firstDay"
+                    :data-date="month.key"
                     v-if="isMobile"
                   >{{ month.shortName }}</button>
                   <button
@@ -69,7 +69,7 @@
                     type="button"
                     :disabled="isDisabled(month)"
                     @click="() => { selectMonth(month) }"
-                    :data-date="month.firstDay"
+                    :data-date="month.key"
                     :class="{
                       'asd__month-button--disabled': isDisabled(month),
                       'asd__month-button--enabled' : !isDisabled(month),
@@ -91,6 +91,7 @@
 
 <script>
 import format from 'date-fns/format'
+import parse from 'date-fns/parse'
 import isSameMonth from 'date-fns/is_same_month'
 import lastDayOfMonth from 'date-fns/last_day_of_month'
 import startOfMonth from 'date-fns/start_of_month'
@@ -108,19 +109,18 @@ export default {
   name: 'AirbnbStyleMonthpicker',
   props: {
     triggerElementId: { type: String },
-    monthOne: { type: [String, Date], default: format(new Date()) },
-    monthTwo: { type: [String, Date], default: format(new Date()) },
-    minMonth: { type: [String, Date] },
-    endMonth: { type: [String, Date] },
+    monthOne: { type: [String, Date], default: '' },
+    monthTwo: { type: [String, Date], default: '' },
+    minDate: { type: [String, Date] },
+    maxDate: { type: [String, Date] },
     mode: { type: String, default: 'range' },
     offsetY: { type: Number, default: 0 },
     offsetX: { type: Number, default: 0 },
     yearsToShow: { type: Number, default: 2 },
-    startOpen: { type: Boolean },
-    fullscreenMobile: { type: Boolean },
-    inline: { type: Boolean },
+    startOpen: { type: Boolean, default: false },
+    fullscreenMobile: { type: Boolean, default: true },
+    inline: { type: Boolean, default: false },
     mobileHeader: { type: String, default: 'Select date' },
-    disabledDates: { type: Array, default: () => [] },
     disabledMonths: { type: Array, default: () => [] },
     showActionButtons: { type: Boolean, default: true },
     isTest: {
@@ -158,14 +158,14 @@ export default {
         'December'
       ],
       monthNamesShort: [
-        'Ene',
+        'Jan',
         'Feb',
         'Mar',
-        'Abr',
+        'Apr',
         'May',
         'Jun',
         'Jul',
-        'Ago',
+        'Aug',
         'Sep',
         'Oct',
         'Nov',
@@ -177,7 +177,7 @@ export default {
       },
       startingYear: '',
       years: [],
-      width: 300,
+      width: 340,
       selectedDate1: '',
       selectedDate2: '',
       isSelectingDate1: true,
@@ -266,9 +266,6 @@ export default {
     hasMinYear() {
       return !!(this.minYear && this.minYear !== '')
     },
-    hasMinMonth() {
-      return !!(this.minMonth && this.minMonth !== '')
-    },
     isRangeMode() {
       return this.mode === 'range'
     },
@@ -290,15 +287,11 @@ export default {
     }
   },
   watch: {
-    selectedDate1(newValue, oldValue) {
-      let newDate =
-      !newValue || newValue === '' ? '' : format(newValue, this.monthFormat)
-      this.$emit('date-one-selected', newDate)
+    selectedDate1(value) {
+      this.$emit('date-one-selected', value)
     },
-    selectedDate2(newValue, oldValue) {
-      let newDate =
-      !newValue || newValue === '' ? '' : format(newValue, this.monthFormat)
-      this.$emit('date-two-selected', newDate)
+    selectedDate2(value) {
+      this.$emit('date-two-selected', value)
     },
     mode(newValue, oldValue) {
       this.setStartMonths()
@@ -306,8 +299,8 @@ export default {
     datePropsCompound(newValue) {
       if (this.dateOne !== this.selectedDate1) {
         this.startingYear = this.dateOne
-        this.setStartMonths()
-        // this.generateMonths()
+        // this.setStartMonths()
+        this.generateYears()
       }
       if (this.isDateTwoBeforeDateOne) {
         this.selectedDate2 = ''
@@ -459,9 +452,9 @@ export default {
       }
       const formattedDate = format(valueAsDateObject, this.monthFormat)
       if (
-        this.isDateDisabled(formattedDate) ||
-        this.isBeforeMinMonth(formattedDate) ||
-        this.isAfterEndMonth(formattedDate)
+        this.isMonthDisabled(formattedDate) ||
+        this.isBeforeMinDate(formattedDate) ||
+        this.isAfterMaxDate(formattedDate)
       ) {
         return
       }
@@ -476,6 +469,31 @@ export default {
       for (let i = 0; i < this.showYears + 2; i++) {
         this.years.push(this.getYear(this.startingYear))
         this.startingYear = this.addYears(this.startingYear)
+      }
+    },
+    getYear(date) {
+      const name = date.getFullYear()
+
+      return {
+        name,
+        months: this.getMonths(date)
+      }
+    },
+    getMonths(date) {
+      const months = []
+      for (let month = 0; month < 12; month += 1) {
+        let data = this.getMonthData(month, date)
+        months.push(data)
+      }
+      return months
+    },
+    getMonthData(monthNumber, date) {
+      return {
+        shortName: this.monthNamesShort[monthNumber],
+        name: this.monthNames[monthNumber],
+        firstDay: startOfMonth(setMonth(date, monthNumber)),
+        lastDay: lastDayOfMonth(setMonth(date, monthNumber)),
+        key: format(startOfMonth(setMonth(date, monthNumber)), 'YYYY-MM')
       }
     },
     setupMonthpicker() {
@@ -493,6 +511,9 @@ export default {
       if (this.$options.monthNames && this.$options.monthNames.length === 12) {
         this.monthNames = copyObject(this.$options.monthNames)
       }
+      if (this.$options.monthNamesShort && this.$options.monthNamesShort.length === 12) {
+        this.monthNamesShort = copyObject(this.$options.monthNamesShort)
+      }
       if (this.$options.texts) {
         const texts = copyObject(this.$options.texts)
         this.texts.apply = texts.apply || this.texts.apply
@@ -506,58 +527,37 @@ export default {
       } else {
         startYear = startOfMonth(new Date())
       }
-      if (this.hasMinMonth && isBefore(startYear, this.minMonth)) {
-        startYear = startOfMonth(this.minMonth)
+      if (this.hasMinDate && isBefore(startYear, this.minDate)) {
+        startYear = startOfMonth(this.minDate)
       }
-      this.startingYear = this.subtractYears(startYear)
+      this.startingYear = this.subtractYears(parse(startYear))
       if (this.isSingleMode) {
         if (this.monthOne && this.monthOne !== '') {
           this.selectedDate1 = startOfMonth(this.monthOne)
           this.selectedDate2 = lastDayOfMonth(this.monthOne)
+        } else {
+          this.selectedDate1 = ''
+          this.selectedDate2 = ''
         }
       } else {
         if (this.monthOne && this.monthOne !== '') {
           this.selectedDate1 = startOfMonth(this.monthOne)
+        } else {
+          this.selectedDate1 = ''
         }
         if (this.monthTwo && this.monthTwo !== '') {
           this.selectedDate2 = lastDayOfMonth(this.monthTwo)
+        } else {
+          this.selectedDate2 = ''
         }
       }
     },
-    getYear(date) {
-      const monthsOfYear = this.monthNamesShort
-      const year = format(date, 'YYYY')
-      const name = format(date, 'YYYY')
 
-      return {
-        year,
-        monthsOfYear,
-        name,
-        months: this.getMonths(date)
-      }
-    },
-    getMonths(date) {
-      const months = []
-      for (let month of this.monthNames.keys()) {
-        let data = this.getMonthData(month, date)
-        months.push(data)
-      }
-      return months
-    },
-    getMonthData(monthNumber, date) {
-      return {
-        shortName: this.monthNamesShort[monthNumber],
-        name: this.monthNames[monthNumber],
-        firstDay: startOfMonth(setMonth(date, monthNumber)),
-        lastDay: lastDayOfMonth(setMonth(date, monthNumber))
-
-      }
-    },
     selectMonth(month) {
       if (
-        this.isBeforeMinMonth(month.firstDay) ||
-      this.isAfterEndMonth(month.firstDay) ||
-      this.isDateDisabled(month.firstDay)) {
+        this.isBeforeMinDate(month.firstDay) ||
+      this.isAfterMaxDate(month.firstDay) ||
+      this.isMonthDisabled(month.firstDay)) {
         return
       }
 
@@ -605,21 +605,17 @@ export default {
       !this.allMonthsSelected)
       )
     },
-    isBeforeMinMonth(month) {
-      if (!this.minMonth) {
+    isBeforeMinDate(month) {
+      if (!this.minDate) {
         return false
       }
-      return isBefore(month.lastDay, this.minMonth)
+      return isBefore(month.lastDay, this.minDate)
     },
-    isAfterEndMonth(month) {
-      if (!this.endMonth) {
+    isAfterMaxDate(month) {
+      if (!this.maxDate) {
         return false
       }
-      return isAfter(month.firstDay, this.endMonth)
-    },
-    isDateDisabled(date) {
-      const isDisabled = this.disabledDates.indexOf(date) > -1
-      return isDisabled
+      return isAfter(month.firstDay, this.maxDate)
     },
     isMonthDisabled(month) {
       for (var i = this.disabledMonths.length - 1; i >= 0; i--) {
@@ -630,20 +626,19 @@ export default {
     isDisabled(month) {
       return (
         this.isMonthDisabled(month) ||
-    this.isBeforeMinMonth(month) ||
-    this.isAfterEndMonth(month)
+    this.isBeforeMinDate(month) ||
+    this.isAfterMaxDate(month)
       )
     },
     previousYear() {
-      this.startingYear = this.subtractYears(this.years[0].name)
+      this.startingYear = this.subtractYears(this.years[0].months[0].firstDay)
 
       this.years.unshift(this.getYear(this.startingYear))
       this.years.splice(this.years.length - 1, 1)
     },
     nextYear() {
       this.startingYear = this.addYears(
-        this.years[this.years.length - 1].name
-      )
+        this.years[this.years.length - 1].months[0].firstDay)
       this.years.push(this.getYear(this.startingYear))
 
       setTimeout(() => {
@@ -651,16 +646,16 @@ export default {
       }, 100)
     },
     subtractYears(date) {
-      return format(subYears(date, 1), this.monthFormat)
+      return subYears(date, 1)
     },
     subtractMonths(date) {
-      return format(subMonths(date, 1), this.monthFormat)
+      return subMonths(date, 1)
     },
     addMonths(date) {
-      return format(addMonths(date, 1), this.monthFormat)
+      return addMonths(date, 1)
     },
     addYears(date) {
-      return format(addYears(date, 1), this.monthFormat)
+      return addYears(date, 1)
     },
     toggleMonthpicker() {
       if (this.showMonthpicker) {
@@ -672,6 +667,7 @@ export default {
     openMonthpicker() {
       this.positionMonthpicker()
       this.setStartMonths()
+      // this.generateYears()
       this.triggerElement.classList.add('monthpicker-open')
       this.showMonthpicker = true
       this.initialDate1 = this.dateOne
@@ -693,7 +689,11 @@ export default {
       this.$emit('closed')
     },
     apply() {
-      this.$emit('apply')
+      const datesSelected = {
+        dateOne: this.selectedDate1,
+        dateTwo: this.selectedDate2
+      }
+      this.$emit('apply', datesSelected)
       this.closeMonthpicker()
     },
     positionMonthpicker() {
