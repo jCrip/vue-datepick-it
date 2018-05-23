@@ -61,7 +61,7 @@
                       'asd__month-item--selected': isSameMonth(selectedDate1 , month.firstDay) || isSameMonth(selectedDate2 , month.lastDay),
                       'asd__month-item--in-range': isInRange(month)
                     }"
-                    :data-date="month.firstDay"
+                    :data-date="month.key"
                     v-if="isMobile"
                   >{{ month.shortName }}</button>
                   <button
@@ -69,7 +69,7 @@
                     type="button"
                     :disabled="isDisabled(month)"
                     @click="() => { selectMonth(month) }"
-                    :data-date="month.firstDay"
+                    :data-date="month.key"
                     :class="{
                       'asd__month-button--disabled': isDisabled(month),
                       'asd__month-button--enabled' : !isDisabled(month),
@@ -492,8 +492,8 @@ export default {
         shortName: this.monthNamesShort[monthNumber],
         name: this.monthNames[monthNumber],
         firstDay: startOfMonth(setMonth(date, monthNumber)),
-        lastDay: lastDayOfMonth(setMonth(date, monthNumber))
-
+        lastDay: lastDayOfMonth(setMonth(date, monthNumber)),
+        key: format(startOfMonth(setMonth(date, monthNumber)), 'YYYY-MM')
       }
     },
     setupMonthpicker() {
@@ -531,7 +531,6 @@ export default {
         startYear = startOfMonth(this.minDate)
       }
       this.startingYear = this.subtractYears(parse(startYear))
-
       if (this.isSingleMode) {
         if (this.monthOne && this.monthOne !== '') {
           this.selectedDate1 = startOfMonth(this.monthOne)
