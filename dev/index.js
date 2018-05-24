@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import App from './App.vue'
-import { AirBnbStyleDatepicker, AirBnbStyleMonthpicker } from './../src/index'
+import { AirbnbStyleDatepicker, AirbnbStyleMonthpicker } from './../src/index'
 
-Vue.use(AirBnbStyleDatepicker, {
+Vue.use(AirbnbStyleDatepicker, {
   sundayFirst: false,
   days: ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'],
   daysShort: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
@@ -34,7 +34,7 @@ Vue.use(AirBnbStyleDatepicker, {
   }
 })
 
-Vue.use(AirBnbStyleMonthpicker, {
+Vue.use(AirbnbStyleMonthpicker, {
   monthNames: [
     'Enero',
     'Febrero',
