@@ -132,7 +132,7 @@ export default {
   data() {
     return {
       wrapperId: 'airbnb-style-monthpicker-wrapper-' + randomString(5),
-      monthFormat: 'MMMM-YYYY',
+      dateFormat: 'YYYY-MM-DD',
       showMonthpicker: false,
       showYears: 2,
       colors: {
@@ -287,11 +287,15 @@ export default {
     }
   },
   watch: {
-    selectedDate1(value) {
-      this.$emit('date-one-selected', value)
+    selectedDate1(newValue, oldValue) {
+      let newDate =
+        !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
+      this.$emit('date-one-selected', newDate)
     },
-    selectedDate2(value) {
-      this.$emit('date-two-selected', value)
+    selectedDate2(newValue, oldValue) {
+      let newDate =
+        !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
+      this.$emit('date-two-selected', newDate)
     },
     mode(newValue, oldValue) {
       this.setStartMonths()
@@ -450,7 +454,7 @@ export default {
       if (!isValid(valueAsDateObject)) {
         return
       }
-      const formattedDate = format(valueAsDateObject, this.monthFormat)
+      const formattedDate = format(valueAsDateObject, this.dateFormat)
       if (
         this.isMonthDisabled(formattedDate) ||
         this.isBeforeMinDate(formattedDate) ||
@@ -531,24 +535,13 @@ export default {
         startYear = startOfMonth(this.minDate)
       }
       this.startingYear = this.subtractYears(parse(startYear))
-      if (this.isSingleMode) {
-        if (this.monthOne && this.monthOne !== '') {
+      if (this.monthOne && this.monthOne !== '') {
+        if (this.isSingleMode) {
           this.selectedDate1 = startOfMonth(this.monthOne)
           this.selectedDate2 = lastDayOfMonth(this.monthOne)
         } else {
-          this.selectedDate1 = ''
-          this.selectedDate2 = ''
-        }
-      } else {
-        if (this.monthOne && this.monthOne !== '') {
           this.selectedDate1 = startOfMonth(this.monthOne)
-        } else {
-          this.selectedDate1 = ''
-        }
-        if (this.monthTwo && this.monthTwo !== '') {
           this.selectedDate2 = lastDayOfMonth(this.monthTwo)
-        } else {
-          this.selectedDate2 = ''
         }
       }
     },
@@ -667,11 +660,10 @@ export default {
     openMonthpicker() {
       this.positionMonthpicker()
       this.setStartMonths()
-      // this.generateYears()
       this.triggerElement.classList.add('monthpicker-open')
       this.showMonthpicker = true
-      this.initialDate1 = this.dateOne
-      this.initialDate2 = this.dateTwo
+      this.initialDate1 = this.monthOne
+      this.initialDate2 = this.monthTwo
     },
     closeMonthpickerCancel() {
       if (this.showMonthpicker) {
