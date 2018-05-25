@@ -108,8 +108,8 @@
 
           <airbnb-style-monthpicker
             :trigger-element-id="'monthpicker-input-trigger'"
-            :month-one="parse('2018-02')"
-            :month-two="''"
+            :month-one="inputDateOne"
+            :month-two="inputDateTwo"
             :mode="'range'"
 
             :min-date="parse('2018-02')"
@@ -150,8 +150,8 @@
           <button id="monthpicker-button-trigger">{{ formatMonths(buttonDateOne, buttonDateTwo) || 'Select dates' }}</button>
 
           <airbnb-style-monthpicker
-            :month-one="''"
-            :month-two="''"
+            :month-one="buttonDateOne"
+            :month-two="buttonDateTwo"
             :min-date="parse(new Date())"
             :max-date="parse('2018-12')"
             :trigger-element-id="'monthpicker-button-trigger'"
