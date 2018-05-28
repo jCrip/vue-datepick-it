@@ -253,7 +253,7 @@ export default {
     vModelformatMonthsSingle(VmodelButtons) {
       let formattedDates = ''
       if (VmodelButtons[0]) {
-        format(VmodelButtons[0], this.monthFormat, {locale: es})
+        formattedDates = format(VmodelButtons[0], this.monthFormat, {locale: es})
       }
       return formattedDates
     },
