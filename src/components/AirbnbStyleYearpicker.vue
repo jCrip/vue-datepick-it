@@ -584,7 +584,6 @@ export default {
       return subYears(date, yearsToSubstract)
     },
     selectYear(year) {
-      console.log(year)
       if (
         this.isBeforeMinDate(year.firstDay) ||
       this.isAfterMaxDate(year.firstDay) ||
