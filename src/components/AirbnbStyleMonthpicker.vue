@@ -109,8 +109,6 @@ export default {
   name: 'AirbnbStyleMonthpicker',
   props: {
     triggerElementId: { type: String },
-    monthOne: { type: [String, Date], default: '' },
-    monthTwo: { type: [String, Date], default: '' },
     minDate: { type: [String, Date] },
     maxDate: { type: [String, Date] },
     mode: { type: String, default: 'range' },
@@ -123,6 +121,7 @@ export default {
     mobileHeader: { type: String, default: 'Select date' },
     disabledMonths: { type: Array, default: () => [] },
     showActionButtons: { type: Boolean, default: true },
+    value: { type: Array, default: () => [] },
     isTest: {
       type: Boolean,
       default: () => process.env.NODE_ENV === 'test'
@@ -131,6 +130,8 @@ export default {
   },
   data() {
     return {
+      monthOne: '',
+      monthTwo: '',
       wrapperId: 'airbnb-style-monthpicker-wrapper-' + randomString(5),
       dateFormat: 'YYYY-MM-DD',
       showMonthpicker: false,
@@ -319,7 +320,6 @@ export default {
   },
   created() {
     this.setupMonthpicker()
-
     this._handleWindowResizeEvent = debounce(() => {
       this.positionMonthpicker()
       this.setStartMonths()
@@ -525,6 +525,10 @@ export default {
       }
     },
     setStartMonths() {
+      let m1, m2;
+      [m1, m2] = this.value
+      this.monthOne = m1
+      this.monthTwo = m2
       let startYear
       if (this.monthOne !== '') {
         startYear = startOfMonth(this.monthOne)
@@ -557,6 +561,7 @@ export default {
       if (this.mode === 'single') {
         this.selectedDate1 = month.firstDay
         this.selectedDate2 = month.lastDay
+        this.$emit('input', [this.selectedDate1, this.selectedDate2])
         this.closeMonthpicker()
         return
       }
@@ -576,6 +581,7 @@ export default {
           this.selectedDate1 = ''
         }
       }
+      this.$emit('input', [this.selectedDate1, this.selectedDate2])
     },
     setHoverMonth(month) {
       this.hoverMonth = month.firstDay

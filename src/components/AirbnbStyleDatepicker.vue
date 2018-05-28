@@ -102,8 +102,6 @@ export default {
   name: 'AirbnbStyleDatepicker',
   props: {
     triggerElementId: { type: String },
-    dateOne: { type: [String, Date], default: format(new Date()) },
-    dateTwo: { type: [String, Date] },
     minDate: { type: [String, Date] },
     endDate: { type: [String, Date] },
     mode: { type: String, default: 'range' },
@@ -116,6 +114,7 @@ export default {
     mobileHeader: { type: String, default: 'Select date' },
     disabledDates: { type: Array, default: () => [] },
     showActionButtons: { type: Boolean, default: true },
+    value: { type: Array, default: () => [] },
     isTest: {
       type: Boolean,
       default: () => process.env.NODE_ENV === 'test'
@@ -125,6 +124,8 @@ export default {
   data() {
     return {
       wrapperId: 'airbnb-style-datepicker-wrapper-' + randomString(5),
+      dateOne: '',
+      dateTwo: '',
       dateFormat: 'YYYY-MM-DD',
       showDatepicker: false,
       showMonths: 2,
@@ -267,12 +268,12 @@ export default {
     selectedDate1(newValue, oldValue) {
       let newDate =
         !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
-      this.$emit('date-one-selected', newDate)
+      this.$emit('input', [newDate, this.selectedDate2])
     },
     selectedDate2(newValue, oldValue) {
       let newDate =
         !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
-      this.$emit('date-two-selected', newDate)
+      this.$emit('input', [this.selectedDate1, newDate])
     },
     mode(newValue, oldValue) {
       this.setStartDates()
@@ -485,6 +486,7 @@ export default {
       }
     },
     setStartDates() {
+      [this.dateOne, this.dateTwo] = this.value
       let startDate = this.dateOne || new Date()
       if (this.hasMinDate && isBefore(startDate, this.minDate)) {
         startDate = this.minDate
