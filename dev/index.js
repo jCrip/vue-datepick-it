@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
-import { AirbnbStyleDatepicker, AirbnbStyleMonthpicker } from './../src/index'
+import { AirbnbStyleDatepicker, AirbnbStyleMonthpicker, AirbnbStyleYearpicker } from './../src/index'
 
 Vue.use(AirbnbStyleDatepicker, {
   sundayFirst: false,
@@ -64,7 +64,7 @@ Vue.use(AirbnbStyleMonthpicker, {
     'Dec'
   ]
 })
-
+Vue.use(AirbnbStyleYearpicker)
 // eslint-disable-next-line
 new Vue({
   el: '#app',

@@ -1,13 +1,13 @@
 <template>
   <div class="app" :class="{'align-right': alignRight}">
     <div v-if="showDatepickers">
-      <div class="datepicker-container with-input">
+      <!-- <div class="datepicker-container with-input">
         <h3>Range datepicker with input</h3>
         <div class="datepicker-trigger">
           <input
             type="text"
             id="datepicker-input-trigger"
-            :value="vModelformatDates(vModelInputs)"
+            :value="formatDates(vModelInputs)"
             placeholder="Select dates"
           >
 
@@ -31,7 +31,7 @@
           <input
             type="text"
             id="datepicker-input-single-trigger"
-            :value="vModelformatDates(vModelSingleDate)"
+            :value="formatDates(vModelSingleDate)"
             placeholder="Select dates"
           >
 
@@ -49,7 +49,7 @@
       <div class="datepicker-container with-button">
         <h3>Range datepicker with button</h3>
         <div class="datepicker-trigger">
-          <button id="datepicker-button-trigger">{{ vModelformatDates(vModelButtons) || 'Select dates' }}</button>
+          <button id="datepicker-button-trigger">{{ formatDates(vModelButtons) || 'Select dates' }}</button>
 
           <airbnb-style-datepicker
             :trigger-element-id="'datepicker-button-trigger'"
@@ -70,7 +70,7 @@
         <h3>Inline datepicker with input</h3>
         <input
           id="datepicker-inline-trigger"
-          :value="vModelformatDates(vModelSingleDate)"
+          :value="formatDates(vModelSingleDate)"
           type="text"
           placeholder="Select date"
         >
@@ -93,7 +93,7 @@
           <input
             type="text"
             id="monthpicker-input-trigger"
-            :value="vModelformatMonths(vModelInputs)"
+            :value="formatMonths(vModelInputs)"
             placeholder="Select dates"
           >
 
@@ -116,7 +116,7 @@
           <input
             type="text"
             id="monthpicker-input-single-trigger"
-            :value="vModelformatMonthsSingle(vModelSingleDate)"
+            :value="formatMonthsSingle(vModelSingleDate)"
             placeholder="Select dates"
           >
 
@@ -135,7 +135,7 @@
       <div class="monthpicker-container with-button">
         <h3>Range monthpicker with button</h3>
         <div class="monthpicker-trigger">
-          <button id="monthpicker-button-trigger">{{ vModelformatMonths(vModelButtons) || 'Select dates' }}</button>
+          <button id="monthpicker-button-trigger">{{ formatMonths(vModelButtons) || 'Select dates' }}</button>
 
           <airbnb-style-monthpicker
             v-model="vModelButtons"
@@ -158,7 +158,7 @@
         <h3>Inline monthpicker with input</h3>
         <input
           id="monthpicker-inline-trigger"
-          :value="vModelformatMonthsSingle(vModelInputs)"
+          :value="formatMonthsSingle(vModelInputs)"
           type="text"
           placeholder="Select date"
         >
@@ -171,6 +171,27 @@
           :fullscreen-mobile="false"
           :months-to-show="2"
           :disabled-months="[parse('2018-06')]"
+          @apply="applyMethod"
+          @closed="closedMethod"
+        />
+      </div>-->
+      <div class="yearpicker-container inline-with-input">
+        <h3>Inline yearpicker with input</h3>
+        <input
+          id="yearpicker-inline-trigger"
+          :value="formatYearSingle(vModelInputs)"
+          type="text"
+          placeholder="Select date"
+        >
+        <airbnb-style-yearpicker
+          :trigger-element-id="'yearpicker-inline-trigger'"
+          v-model="vModelInputs"
+          :min-date="parse('2017')"
+          :mode="'single'"
+          :inline="true"
+          :fullscreen-mobile="false"
+          :year-wrappers-to-show="2"
+          :disabled-years="[parse('2019')]"
           @apply="applyMethod"
           @closed="closedMethod"
         />
@@ -194,6 +215,7 @@ export default {
     return {
       dateFormat: 'DD MMMM YYYY', //'D MMM',
       monthFormat: 'MMMM YYYY', //'D MMM',
+      yearFormat: 'YYYY',
       inputDateOne: '',
       inputDateTwo: '',
       inputSingleDateOne: '',
@@ -220,27 +242,7 @@ export default {
     parse(date) {
       return parse(date)
     },
-    formatDates(dateOne, dateTwo) {
-      let formattedDates = ''
-      if (dateOne) {
-        formattedDates = format(dateOne, this.dateFormat, { locale: es })
-      }
-      if (dateTwo) {
-        formattedDates += ' - ' + format(dateTwo, this.dateFormat, { locale: es })
-      }
-      return formattedDates
-    },
-    formatMonths(dateOne, dateTwo) {
-      let formattedDates = ''
-      if (dateOne) {
-        formattedDates = format(dateOne, this.monthFormat, {locale: es})
-      }
-      if (dateTwo) {
-        formattedDates += ' - ' + format(dateTwo, this.monthFormat, {locale: es})
-      }
-      return formattedDates
-    },
-    vModelformatMonths(VmodelButtons) {
+    formatMonths(VmodelButtons) {
       let formattedDates = ''
       if (VmodelButtons[0]) {
         formattedDates = format(VmodelButtons[0], this.monthFormat, {locale: es})
@@ -250,14 +252,21 @@ export default {
       }
       return formattedDates
     },
-    vModelformatMonthsSingle(VmodelButtons) {
+    formatMonthsSingle(VmodelButtons) {
       let formattedDates = ''
       if (VmodelButtons[0]) {
-        format(VmodelButtons[0], this.monthFormat, {locale: es})
+        formattedDates = format(VmodelButtons[0], this.monthFormat, {locale: es})
       }
       return formattedDates
     },
-    vModelformatDates(VmodelButtons) {
+    formatYearSingle(VmodelButtons) {
+      let formattedDates = ''
+      if (VmodelButtons[0]) {
+        formattedDates = format(VmodelButtons[0], this.yearFormat, {locale: es})
+      }
+      return formattedDates
+    },
+    formatDates(VmodelButtons) {
       let formattedDates = ''
       if (VmodelButtons[0]) {
         formattedDates = format(VmodelButtons[0], this.dateFormat, { locale: es })
