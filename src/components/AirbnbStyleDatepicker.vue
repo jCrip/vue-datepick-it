@@ -96,6 +96,8 @@ import getDaysInMonth from 'date-fns/get_days_in_month'
 import isBefore from 'date-fns/is_before'
 import isAfter from 'date-fns/is_after'
 import isValid from 'date-fns/is_valid'
+import parse from 'date-fns/parse'
+import isSameDay from 'date-fns/is_same_day'
 import { debounce, copyObject, findAncestor, randomString } from './../helpers'
 
 export default {
@@ -114,7 +116,7 @@ export default {
     mobileHeader: { type: String, default: 'Select date' },
     disabledDates: { type: Array, default: () => [] },
     showActionButtons: { type: Boolean, default: true },
-    value: { type: Array, default: () => [] },
+    value: { type: [Array, String], default: () => [] },
     isTest: {
       type: Boolean,
       default: () => process.env.NODE_ENV === 'test'
@@ -253,10 +255,7 @@ export default {
     datepickerWidth() {
       return this.width * this.showMonths
     },
-    datePropsCompound() {
-      // used to watch for changes in props, and update GUI accordingly
-      return this.dateOne + this.dateTwo
-    },
+
     isDateTwoBeforeDateOne() {
       if (!this.dateTwo) {
         return false
@@ -265,34 +264,8 @@ export default {
     }
   },
   watch: {
-    selectedDate1(newValue, oldValue) {
-      let newDate =
-        !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
-      this.$emit('input', [newDate, this.selectedDate2])
-    },
-    selectedDate2(newValue, oldValue) {
-      let newDate =
-        !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
-      this.$emit('input', [this.selectedDate1, newDate])
-    },
     mode(newValue, oldValue) {
       this.setStartDates()
-    },
-    datePropsCompound(newValue) {
-      if (this.dateOne !== this.selectedDate1) {
-        this.startingDate = this.dateOne
-        this.setStartDates()
-        this.generateMonths()
-      }
-      if (this.isDateTwoBeforeDateOne) {
-        this.selectedDate2 = ''
-        this.$emit('date-two-selected', '')
-      }
-    },
-    trigger(newValue, oldValue) {
-      if (newValue) {
-        this.openDatepicker()
-      }
     }
   },
   created() {
@@ -486,14 +459,29 @@ export default {
       }
     },
     setStartDates() {
-      [this.dateOne, this.dateTwo] = this.value
-      let startDate = this.dateOne || new Date()
+      if (this.isRangeMode) {
+        [this.dateOne, this.dateTwo] = this.value
+      } else {
+        this.dateOne = this.value
+      }
+      let startDate
+      if (this.dateOne !== '') {
+        startDate = parse(this.dateOne)
+      } else {
+        startDate = new Date()
+      }
       if (this.hasMinDate && isBefore(startDate, this.minDate)) {
         startDate = this.minDate
       }
       this.startingDate = this.subtractMonths(startDate)
       this.selectedDate1 = this.dateOne
       this.selectedDate2 = this.dateTwo
+      if (this.dateOne !== '') {
+        this.isSelectingDate1 = false
+      }
+      if (this.dateTwo !== '') {
+        this.isSelectingDate2 = false
+      }
     },
     setSundayToFirstDayInWeek() {
       const lastDay = this.days.pop()
@@ -565,6 +553,7 @@ export default {
 
       if (this.mode === 'single') {
         this.selectedDate1 = date
+        this.$emit('input', this.selectedDate1)
         this.closeDatepicker()
         return
       }
@@ -577,6 +566,11 @@ export default {
           this.selectedDate2 = ''
         }
       } else {
+        if (isSameDay(this.selectedDate1, date)) {
+          this.selectedDate1 = ''
+          this.isSelectingDate1 = true
+          return
+        }
         this.selectedDate2 = date
         this.isSelectingDate1 = true
 
@@ -584,6 +578,7 @@ export default {
           this.selectedDate1 = ''
         }
       }
+      if (this.allDatesSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
     },
     setHoverDate(date) {
       this.hoverDate = date

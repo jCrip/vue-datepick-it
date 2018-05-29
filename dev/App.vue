@@ -1,20 +1,19 @@
 <template>
   <div class="app" :class="{'align-right': alignRight}">
     <div v-if="showDatepickers">
-      <!-- <div class="datepicker-container with-input">
+      <div class="datepicker-container with-input">
         <h3>Range datepicker with input</h3>
         <div class="datepicker-trigger">
           <input
             type="text"
             id="datepicker-input-trigger"
-            :value="formatDates(vModelInputs)"
+            :value="formatDates(multipleDates)"
             placeholder="Select dates"
           >
-
           <airbnb-style-datepicker
             :trigger-element-id="'datepicker-input-trigger'"
             :mode="'range'"
-            v-model="vModelInputs"
+            v-model="multipleDates"
             :min-date="parse('2018-02-28')"
             :open-on-focus="true"
             :months-to-show="2"
@@ -31,14 +30,14 @@
           <input
             type="text"
             id="datepicker-input-single-trigger"
-            :value="formatDates(vModelSingleDate)"
+            :value="formatDates(inputDateOne)"
             placeholder="Select dates"
           >
 
           <airbnb-style-datepicker
             :trigger-element-id="'datepicker-input-single-trigger'"
             :mode="'single'"
-            v-model="vModelSingleDate"
+            v-model="inputDateOne"
             :months-to-show="2"
             @apply="applyMethod"
             @closed="closedMethod"
@@ -49,12 +48,12 @@
       <div class="datepicker-container with-button">
         <h3>Range datepicker with button</h3>
         <div class="datepicker-trigger">
-          <button id="datepicker-button-trigger">{{ formatDates(vModelButtons) || 'Select dates' }}</button>
+          <button id="datepicker-button-trigger">{{ formatDates(multipleDates) || 'Select dates' }}</button>
 
           <airbnb-style-datepicker
             :trigger-element-id="'datepicker-button-trigger'"
             :mode="'range'"
-            v-model="vModelButtons"
+            v-model="multipleDates"
             :min-date="parse('2018-04-18')"
             :fullscreen-mobile="true"
             :months-to-show="2"
@@ -70,13 +69,13 @@
         <h3>Inline datepicker with input</h3>
         <input
           id="datepicker-inline-trigger"
-          :value="formatDates(vModelSingleDate)"
+          :value="formatDates(inputDateOne)"
           type="text"
           placeholder="Select date"
         >
         <airbnb-style-datepicker
           :trigger-element-id="'datepicker-inline-trigger'"
-          v-model="vModelSingleDate"
+          v-model="inputDateOne"
           :mode="'single'"
           :inline="true"
           :fullscreen-mobile="false"
@@ -174,7 +173,7 @@
           @apply="applyMethod"
           @closed="closedMethod"
         />
-      </div>-->
+      </div>
       <div class="yearpicker-container inline-with-input">
         <h3>Inline yearpicker with input</h3>
         <input
@@ -231,7 +230,20 @@ export default {
       vModelSingleDate: ['', '']
     }
   },
-  computed: {},
+  computed: {
+
+    multipleDates: {
+      get() {
+        return [
+          this.inputDateOne,
+          this.inputDateTwo
+        ]
+      },
+      set(value) {
+        [this.inputDateOne, this.inputDateTwo] = value
+      }
+    }
+  },
   created() {
     // setTimeout(() => {
     //   this.inputDateOne = '2019-01-12'
@@ -242,6 +254,7 @@ export default {
     parse(date) {
       return parse(date)
     },
+
     formatMonths(VmodelButtons) {
       let formattedDates = ''
       if (VmodelButtons[0]) {
@@ -266,13 +279,17 @@ export default {
       }
       return formattedDates
     },
-    formatDates(VmodelButtons) {
+    formatDates(Dates) {
       let formattedDates = ''
-      if (VmodelButtons[0]) {
-        formattedDates = format(VmodelButtons[0], this.dateFormat, { locale: es })
-      }
-      if (VmodelButtons[1]) {
-        formattedDates += ' - ' + format(VmodelButtons[1], this.dateFormat, { locale: es })
+      if (!Array.isArray(Dates)) {
+        if (Dates) formattedDates = format(Dates, this.dateFormat, { locale: es })
+      } else {
+        if (Dates[0]) {
+          formattedDates = format(Dates[0], this.dateFormat, { locale: es })
+        }
+        if (Dates[1]) {
+          formattedDates += ' - ' + format(Dates[1], this.dateFormat, { locale: es })
+        }
       }
       return formattedDates
     },
