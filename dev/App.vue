@@ -85,6 +85,8 @@
           @closed="closedMethod"
         />
       </div>
+    </div>
+    <div v-if="showMonthpickers">
 
       <div class="monthpicker-container datepicker-container with-input">
         <h3>Range monthpicker with input</h3>
@@ -92,16 +94,16 @@
           <input
             type="text"
             id="monthpicker-input-trigger"
-            :value="formatMonths(vModelInputs)"
+            :value="formatMonths(multipleDates)"
             placeholder="Select dates"
           >
 
           <airbnb-style-monthpicker
             :trigger-element-id="'monthpicker-input-trigger'"
-            v-model="vModelInputs"
+            v-model="multipleDates"
             :mode="'range'"
-            :min-date="parse('2018-02')"
-            :months-to-show="2"
+            :min-month="parse('2018-02')"
+            :years-to-show="2"
             :show-action-buttons="true"
             @apply="applyMethod"
             @closed="closedMethod"
@@ -115,16 +117,16 @@
           <input
             type="text"
             id="monthpicker-input-single-trigger"
-            :value="formatMonthsSingle(vModelSingleDate)"
+            :value="formatMonthsSingle(multipleDates)"
             placeholder="Select dates"
           >
 
           <airbnb-style-monthpicker
             :trigger-element-id="'monthpicker-input-single-trigger'"
-            v-model="vModelSingleDate"
+            v-model="multipleDates"
 
             :mode="'single'"
-            :months-to-show="2"
+            :years-to-show="2"
             @apply="applyMethod"
             @closed="closedMethod"
           />
@@ -134,17 +136,17 @@
       <div class="monthpicker-container with-button">
         <h3>Range monthpicker with button</h3>
         <div class="monthpicker-trigger">
-          <button id="monthpicker-button-trigger">{{ formatMonths(vModelButtons) || 'Select dates' }}</button>
+          <button id="monthpicker-button-trigger">{{ formatMonths(multipleDates) || 'Select dates' }}</button>
 
           <airbnb-style-monthpicker
-            v-model="vModelButtons"
+            v-model="multipleDates"
 
-            :max-date="parse('2018-12')"
+            :max-month="parse('2018-12')"
             :trigger-element-id="'monthpicker-button-trigger'"
             :mode="'range'"
             :inline="false"
             :fullscreen-mobile="true"
-            :months-to-show="2"
+            :years-to-show="2"
             :trigger="trigger"
             :offset-y="10"
             @apply="applyMethod"
@@ -157,48 +159,118 @@
         <h3>Inline monthpicker with input</h3>
         <input
           id="monthpicker-inline-trigger"
-          :value="formatMonthsSingle(vModelInputs)"
+          :value="formatMonthsSingle(multipleDates)"
           type="text"
           placeholder="Select date"
         >
         <airbnb-style-monthpicker
           :trigger-element-id="'monthpicker-inline-trigger'"
-          v-model="vModelInputs"
+          v-model="multipleDates"
           :min-date="parse('2018-04')"
           :mode="'single'"
           :inline="true"
           :fullscreen-mobile="false"
-          :months-to-show="2"
+          :years-to-show="2"
           :disabled-months="[parse('2018-06')]"
           @apply="applyMethod"
           @closed="closedMethod"
         />
       </div>
+    </div>
+    <div v-if="showYearpickers">
+      <div class="yearpicker-container with-input">
+        <h3>Range yearpicker with input</h3>
+        <div class="yearpicker-trigger">
+          <input
+            type="text"
+            id="yearpicker-input-trigger"
+            :value="formatYears(multipleDates)"
+            placeholder="Select dates"
+          >
+
+          <airbnb-style-yearpicker
+            :trigger-element-id="'yearicker-input-trigger'"
+            v-model="multipleDates"
+            :mode="'range'"
+            :min-year="parse('2018')"
+            :years-wrappers-to-show="2"
+            :show-action-buttons="true"
+            @apply="applyMethod"
+            @closed="closedMethod"
+          />
+        </div>
+      </div>
+
+      <div class="yearpicker-container single-with-input">
+        <h3>Single yearpicker with input</h3>
+        <div class="yearpicker-trigger">
+          <input
+            type="text"
+            id="yearpicker-input-single-trigger"
+            :value="formatYears(multipleDates)"
+            placeholder="Select Years"
+          >
+
+          <airbnb-style-yearpicker
+            :trigger-element-id="'yearpicker-input-single-trigger'"
+            v-model="multipleDates"
+
+            :mode="'single'"
+            :years-wrappers-to-show="2"
+            @apply="applyMethod"
+            @closed="closedMethod"
+          />
+        </div>
+      </div>
+
+      <div class="yearpicker-container with-button">
+        <h3>Range yearpicker with button</h3>
+        <div class="yearpicker-trigger">
+          <button id="yearpicker-button-trigger">{{ formatYears(multipleDates) || 'Select Years' }}</button>
+
+          <airbnb-style-yearpicker
+            v-model="multipleDates"
+
+            :max-month="parse('2018-12')"
+            :trigger-element-id="'yearpicker-button-trigger'"
+            :mode="'range'"
+            :inline="false"
+            :fullscreen-mobile="true"
+            :years-wrappers-to-show="2"
+            :trigger="trigger"
+            :offset-y="10"
+            @apply="applyMethod"
+            @closed="closedMethod"
+          />
+        </div>
+      </div>
+
       <div class="yearpicker-container inline-with-input">
         <h3>Inline yearpicker with input</h3>
         <input
           id="yearpicker-inline-trigger"
-          :value="formatYearSingle(vModelInputs)"
+          :value="formatYears(multipleDates)"
           type="text"
           placeholder="Select date"
         >
         <airbnb-style-yearpicker
           :trigger-element-id="'yearpicker-inline-trigger'"
-          v-model="vModelInputs"
-          :min-date="parse('2017')"
+          v-model="multipleDates"
+          :min-date="parse('2018-04')"
           :mode="'single'"
           :inline="true"
           :fullscreen-mobile="false"
-          :year-wrappers-to-show="2"
-          :disabled-years="[parse('2019')]"
+          :years-wrappers-to-show="2"
+          :disabled-years="[parse('2018')]"
           @apply="applyMethod"
           @closed="closedMethod"
         />
       </div>
-
     </div>
 
-    <button @click="toggleDatepickers">Hide monthpickers</button>
+    <button @click="toggleDatepickers">Hide datepickers</button>
+    <button @click="toggleMonthpickers">Hide monthpickers</button>
+    <button @click="toggleYearpickers">Hide yearpickers</button>
     <button @click="toggleAlign">Toggle alignment</button>
     <button @click="toggleTrigger">Toggle trigger</button>
   </div>
@@ -224,6 +296,8 @@ export default {
       sundayFirst: false,
       alignRight: false,
       showDatepickers: true,
+      showYearpickers: true,
+      showMonthpickers: true,
       trigger: false,
       vModelButtons: ['', ''],
       vModelInputs: ['', ''],
@@ -265,6 +339,16 @@ export default {
       }
       return formattedDates
     },
+    formatYears(VmodelButtons) {
+      let formattedDates = ''
+      if (VmodelButtons[0]) {
+        formattedDates = format(VmodelButtons[0], this.yearFormat, {locale: es})
+      }
+      if (VmodelButtons[1]) {
+        formattedDates += ' - ' + format(VmodelButtons[1], this.yearFormat, {locale: es})
+      }
+      return formattedDates
+    },
     formatMonthsSingle(VmodelButtons) {
       let formattedDates = ''
       if (VmodelButtons[0]) {
@@ -298,6 +382,12 @@ export default {
     },
     toggleDatepickers() {
       this.showDatepickers = !this.showDatepickers
+    },
+    toggleMonthpickers() {
+      this.showMonthpickers = !this.showMonthpickers
+    },
+    toggleYearpickers() {
+      this.showYearpickers = !this.showYearpickers
     },
     toggleTrigger() {
       this.trigger = !this.trigger

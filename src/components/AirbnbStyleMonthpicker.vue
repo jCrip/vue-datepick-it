@@ -95,22 +95,21 @@ import parse from 'date-fns/parse'
 import isSameMonth from 'date-fns/is_same_month'
 import lastDayOfMonth from 'date-fns/last_day_of_month'
 import startOfMonth from 'date-fns/start_of_month'
-import subMonths from 'date-fns/sub_months'
 import subYears from 'date-fns/sub_years'
-import addMonths from 'date-fns/add_months'
 import addYears from 'date-fns/add_years'
 import setMonth from 'date-fns/set_month'
 import isBefore from 'date-fns/is_before'
 import isAfter from 'date-fns/is_after'
 import isValid from 'date-fns/is_valid'
+import isSameDay from 'date-fns/is_same_day'
 import { debounce, copyObject, findAncestor, randomString } from './../helpers'
 
 export default {
   name: 'AirbnbStyleMonthpicker',
   props: {
     triggerElementId: { type: String },
-    minDate: { type: [String, Date] },
-    maxDate: { type: [String, Date] },
+    minMonth: { type: [String, Date] },
+    maxMonth: { type: [String, Date] },
     mode: { type: String, default: 'range' },
     offsetY: { type: Number, default: 0 },
     offsetX: { type: Number, default: 0 },
@@ -229,11 +228,6 @@ export default {
           : `-${this.width}px`
       }
     },
-    monthWidthStyles() {
-      return {
-        width: this.showFullscreen ? this.viewportWidth : this.width + 'px'
-      }
-    },
     yearWidthStyles() {
       return {
         width: this.showFullscreen ? this.viewportWidth : this.width + 'px'
@@ -241,12 +235,6 @@ export default {
     },
     showFullscreen() {
       return this.isMobile && this.fullscreenMobile
-    },
-    monthsSelected() {
-      return !!(
-        (this.selectedDate1 && this.selectedDate1 !== '') ||
-        (this.selectedDate2 && this.selectedDate2 !== '')
-      )
     },
     allMonthsSelected() {
       if (this.isSingleMode) {
@@ -261,26 +249,11 @@ export default {
         !isSameMonth(this.selectedDate2, this.selectedDate1)
       )
     },
-    hasMinDate() {
-      return !!(this.minDate && this.minDate !== '')
-    },
-    hasMinYear() {
-      return !!(this.minYear && this.minYear !== '')
-    },
-    isRangeMode() {
-      return this.mode === 'range'
+    hasMinMonth() {
+      return !!(this.minMonth && this.minMonth !== '')
     },
     isSingleMode() {
       return this.mode === 'single'
-    },
-    monthpickerWidth() {
-      return this.width * this.showYears
-    },
-    isDateTwoBeforeDateOne() {
-      if (!this.dateTwo) {
-        return false
-      }
-      return isBefore(this.dateTwo, this.dateOne)
     }
   },
   watch: {
@@ -432,8 +405,8 @@ export default {
       const formattedDate = format(valueAsDateObject, this.dateFormat)
       if (
         this.isMonthDisabled(formattedDate) ||
-        this.isBeforeMinDate(formattedDate) ||
-        this.isAfterMaxDate(formattedDate)
+        this.isBeforeMinMonth(formattedDate) ||
+        this.isAfterMaxMonth(formattedDate)
       ) {
         return
       }
@@ -510,8 +483,8 @@ export default {
       } else {
         startYear = startOfMonth(new Date())
       }
-      if (this.hasMinDate && isBefore(startYear, this.minDate)) {
-        startYear = startOfMonth(this.minDate)
+      if (this.hasMinMonth && isBefore(startYear, this.minMonth)) {
+        startYear = startOfMonth(this.minMonth)
       }
       this.startingYear = this.subtractYears(parse(startYear))
       if (this.monthOne && this.monthOne !== '') {
@@ -527,8 +500,8 @@ export default {
 
     selectMonth(month) {
       if (
-        this.isBeforeMinDate(month.firstDay) ||
-        this.isAfterMaxDate(month.firstDay) ||
+        this.isBeforeMinMonth(month.firstDay) ||
+        this.isAfterMaxMonth(month.firstDay) ||
         this.isMonthDisabled(month.firstDay)) {
         return
       }
@@ -538,19 +511,25 @@ export default {
         this.selectedDate2 = month.lastDay
         this.closeMonthpicker()
       } else {
-        if (this.isSelectingDate1 || isBefore(month.firstDay, this.selectedDate1)) {
-          this.selectedDate1 = month.firstDay
-          this.isSelectingDate1 = false
-
-          if (isBefore(this.selectedDate2, month.lastDay)) {
-            this.selectedDate2 = ''
-          }
-        } else {
-          this.selectedDate2 = month.lastDay
+        if (isSameDay(this.selectedDate1, month.firstDay)) {
+          this.selectedDate1 = ''
+          this.selectedDate2 = ''
           this.isSelectingDate1 = true
+        } else {
+          if (this.isSelectingDate1 || isBefore(month.firstDay, this.selectedDate1)) {
+            this.selectedDate1 = month.firstDay
+            this.isSelectingDate1 = false
 
-          if (isAfter(this.selectedDate1, month.lastDay)) {
-            this.selectedDate1 = ''
+            if (isBefore(this.selectedDate2, month.lastDay)) {
+              this.selectedDate2 = ''
+            }
+          } else {
+            this.selectedDate2 = month.lastDay
+            this.isSelectingDate1 = true
+
+            if (isAfter(this.selectedDate1, month.lastDay)) {
+              this.selectedDate1 = ''
+            }
           }
         }
       }
@@ -579,17 +558,17 @@ export default {
       !this.allMonthsSelected)
       )
     },
-    isBeforeMinDate(month) {
-      if (!this.minDate) {
+    isBeforeMinMonth(month) {
+      if (!this.minMonth) {
         return false
       }
-      return isBefore(month.lastDay, this.minDate)
+      return isBefore(month.lastDay, this.minMonth)
     },
-    isAfterMaxDate(month) {
-      if (!this.maxDate) {
+    isAfterMaxMonth(month) {
+      if (!this.maxMonth) {
         return false
       }
-      return isAfter(month.firstDay, this.maxDate)
+      return isAfter(month.firstDay, this.maxMonth)
     },
     isMonthDisabled(month) {
       for (var i = this.disabledMonths.length - 1; i >= 0; i--) {
@@ -600,8 +579,8 @@ export default {
     isDisabled(month) {
       return (
         this.isMonthDisabled(month) ||
-    this.isBeforeMinDate(month) ||
-    this.isAfterMaxDate(month)
+    this.isBeforeMinMonth(month) ||
+    this.isAfterMaxMonth(month)
       )
     },
     previousYear() {
@@ -621,12 +600,6 @@ export default {
     },
     subtractYears(date) {
       return subYears(date, 1)
-    },
-    subtractMonths(date) {
-      return subMonths(date, 1)
-    },
-    addMonths(date) {
-      return addMonths(date, 1)
     },
     addYears(date) {
       return addYears(date, 1)

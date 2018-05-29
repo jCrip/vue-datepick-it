@@ -63,7 +63,7 @@
                       'asd__day--in-range': isInRange(fullDate)
                     }"
                     :style="getDayStyles(fullDate)"
-                    @mouseover="() => { setHoverDate(fullDate) }"
+                    @mouseover="setHoverDate(fullDate)"
                   >
                     <button
                       class="asd__day-button"
@@ -71,7 +71,7 @@
                       v-if="dayNumber"
                       :date="fullDate"
                       :disabled="isDisabled(fullDate)"
-                      @click="() => { selectDate(fullDate) }"
+                      @click="selectDate(fullDate)"
                     >{{ dayNumber }}</button>
                   </td>
                 </tr>
@@ -569,13 +569,13 @@ export default {
         if (isSameDay(this.selectedDate1, date)) {
           this.selectedDate1 = ''
           this.isSelectingDate1 = true
-          return
-        }
-        this.selectedDate2 = date
-        this.isSelectingDate1 = true
+        } else {
+          this.selectedDate2 = date
+          this.isSelectingDate1 = true
 
-        if (isAfter(this.selectedDate1, date)) {
-          this.selectedDate1 = ''
+          if (isAfter(this.selectedDate1, date)) {
+            this.selectedDate1 = ''
+          }
         }
       }
       if (this.allDatesSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
