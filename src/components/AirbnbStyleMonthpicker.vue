@@ -48,13 +48,13 @@
                     'asd__month-item--in-range': isInRange(month)
                   }"
                   :style="getMonthStyles(month)"
-                  @mouseover="() => { setHoverMonth(month) }"
+                  @mouseover="setHoverMonth(month)"
                 >
                   <button
                     class="asd__month-button"
                     type="button"
                     :disabled="isDisabled(month)"
-                    @click="() => { selectMonth(month) }"
+                    @click="selectMonth(month)"
                     :class="{
                       'asd__month-item--disabled': isDisabled(month),
                       'asd__month-item--enabled' : !isDisabled(month),
@@ -68,7 +68,7 @@
                     class="asd__month-button"
                     type="button"
                     :disabled="isDisabled(month)"
-                    @click="() => { selectMonth(month) }"
+                    @click="selectMonth(month)"
                     :data-date="month.key"
                     :class="{
                       'asd__month-button--disabled': isDisabled(month),
@@ -276,10 +276,6 @@ export default {
     monthpickerWidth() {
       return this.width * this.showYears
     },
-    datePropsCompound() {
-      // used to watch for changes in props, and update GUI accordingly
-      return this.dateOne + this.dateTwo
-    },
     isDateTwoBeforeDateOne() {
       if (!this.dateTwo) {
         return false
@@ -288,29 +284,8 @@ export default {
     }
   },
   watch: {
-    selectedDate1(newValue, oldValue) {
-      let newDate =
-        !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
-      this.$emit('date-one-selected', newDate)
-    },
-    selectedDate2(newValue, oldValue) {
-      let newDate =
-        !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
-      this.$emit('date-two-selected', newDate)
-    },
     mode(newValue, oldValue) {
       this.setStartMonths()
-    },
-    datePropsCompound(newValue) {
-      if (this.dateOne !== this.selectedDate1) {
-        this.startingYear = this.dateOne
-        // this.setStartMonths()
-        this.generateYears()
-      }
-      if (this.isDateTwoBeforeDateOne) {
-        this.selectedDate2 = ''
-        this.$emit('date-two-selected', '')
-      }
     },
     trigger(newValue, oldValue) {
       if (newValue) {
@@ -553,35 +528,35 @@ export default {
     selectMonth(month) {
       if (
         this.isBeforeMinDate(month.firstDay) ||
-      this.isAfterMaxDate(month.firstDay) ||
-      this.isMonthDisabled(month.firstDay)) {
+        this.isAfterMaxDate(month.firstDay) ||
+        this.isMonthDisabled(month.firstDay)) {
         return
       }
 
       if (this.mode === 'single') {
         this.selectedDate1 = month.firstDay
         this.selectedDate2 = month.lastDay
-        this.$emit('input', [this.selectedDate1, this.selectedDate2])
         this.closeMonthpicker()
-        return
-      }
-
-      if (this.isSelectingDate1 || isBefore(month.firstDay, this.selectedDate1)) {
-        this.selectedDate1 = month.firstDay
-        this.isSelectingDate1 = false
-
-        if (isBefore(this.selectedDate2, month.lastDay)) {
-          this.selectedDate2 = ''
-        }
       } else {
-        this.selectedDate2 = month.lastDay
-        this.isSelectingDate1 = true
+        if (this.isSelectingDate1 || isBefore(month.firstDay, this.selectedDate1)) {
+          this.selectedDate1 = month.firstDay
+          this.isSelectingDate1 = false
 
-        if (isAfter(this.selectedDate1, month.lastDay)) {
-          this.selectedDate1 = ''
+          if (isBefore(this.selectedDate2, month.lastDay)) {
+            this.selectedDate2 = ''
+          }
+        } else {
+          this.selectedDate2 = month.lastDay
+          this.isSelectingDate1 = true
+
+          if (isAfter(this.selectedDate1, month.lastDay)) {
+            this.selectedDate1 = ''
+          }
         }
       }
-      this.$emit('input', [this.selectedDate1, this.selectedDate2])
+      if (this.allMonthsSelected) {
+        this.$emit('input', [this.selectedDate1, this.selectedDate2])
+      }
     },
     setHoverMonth(month) {
       this.hoverMonth = month.firstDay
