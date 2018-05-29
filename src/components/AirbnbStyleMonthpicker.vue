@@ -120,7 +120,7 @@ export default {
     mobileHeader: { type: String, default: 'Select date' },
     disabledMonths: { type: Array, default: () => [] },
     showActionButtons: { type: Boolean, default: true },
-    value: { type: Array, default: () => [] },
+    value: { type: [Array, String], default: () => ['', ''] },
     isTest: {
       type: Boolean,
       default: () => process.env.NODE_ENV === 'test'
@@ -239,7 +239,7 @@ export default {
     allMonthsSelected() {
       if (this.isSingleMode) {
         return !!(this.selectedDate1 &&
-          this.selectedDate !== '')
+          this.selectedDate1 !== '')
       }
       return !!(
         this.selectedDate1 &&
@@ -473,10 +473,11 @@ export default {
       }
     },
     setStartMonths() {
-      let m1, m2;
-      [m1, m2] = this.value
-      this.monthOne = m1
-      this.monthTwo = m2
+      if (Array.isArray(this.value)) {
+        [this.monthOne, this.monthTwo] = this.value
+      } else {
+        this.monthOne = parse(this.value)
+      }
       let startYear
       if (this.monthOne !== '') {
         startYear = startOfMonth(this.monthOne)

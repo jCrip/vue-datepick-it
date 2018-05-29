@@ -116,7 +116,7 @@ export default {
     mobileHeader: { type: String, default: 'Select date' },
     disabledDates: { type: Array, default: () => [] },
     showActionButtons: { type: Boolean, default: true },
-    value: { type: [Array, String], default: () => [] },
+    value: { type: [Array, String, Date], default: () => ['', ''] },
     isTest: {
       type: Boolean,
       default: () => process.env.NODE_ENV === 'test'
@@ -405,7 +405,7 @@ export default {
         )}-${value.substring(0, 2)}`
       }
 
-      const valueAsDateObject = new Date(value)
+      const valueAsDateObject = parse(value)
       if (!isValid(valueAsDateObject)) {
         return
       }

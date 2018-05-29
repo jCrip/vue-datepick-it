@@ -2,16 +2,15 @@ import { shallow, createLocalVue } from '@vue/test-utils'
 import AirbnbStyleDatepicker from '@/components/AirbnbStyleDatepicker'
 import ClickOutside from '@/directives/ClickOutside'
 import TestHelpers from 'test/test-helpers'
+import parse from 'date-fns/parse'
+let h
 
 const localVue = createLocalVue()
 localVue.directive('click-outside', ClickOutside)
-let h
-
 const createDatePickerInstance = (propsData, options) => {
   if (!propsData) {
     propsData = {
-      dateOne: '2018-12-20',
-      dateTwo: '2018-12-25',
+      value: ['2018-01-10', '2018-01-13'],
       monthsToShow: 2
     }
   }
@@ -45,11 +44,10 @@ describe('AirbnbStyleDatepicker', () => {
     })
     test('dates are set when initial values are passed', () => {
       wrapper = createDatePickerInstance({
-        dateOne: '2018-01-10',
-        dateTwo: '2018-01-13'
+        value: ['2018-01-10', '2018-01-13']
       })
-      expect(wrapper.vm.selectedDate1).toEqual(wrapper.props().dateOne)
-      expect(wrapper.vm.selectedDate2).toEqual(wrapper.props().dateTwo)
+      expect(wrapper.vm.selectedDate1).toEqual(wrapper.props().value[0])
+      expect(wrapper.vm.selectedDate2).toEqual(wrapper.props().value[1])
     })
 
     test('sunday is first day, if specified', () => {
@@ -62,14 +60,14 @@ describe('AirbnbStyleDatepicker', () => {
     test('datesSelected() works', () => {
       wrapper = createDatePickerInstance({
         mode: 'range',
-        dateOne: '2018-01-10'
+        value: '2018-01-10'
       })
       expect(wrapper.vm.datesSelected).toEqual(true)
     })
     test('allDatesSelected() works', () => {
       wrapper = createDatePickerInstance({
         mode: 'range',
-        dateOne: '2018-01-10'
+        value: ['2018-01-10', '']
       })
       expect(wrapper.vm.allDatesSelected).toEqual(false)
     })
@@ -93,10 +91,10 @@ describe('AirbnbStyleDatepicker', () => {
     test('isSelected() works', () => {
       wrapper = createDatePickerInstance({
         mode: 'single',
-        dateOne: '2018-01-10'
+        value: '2018-01-10'
       })
       expect(wrapper.vm.isSelected('2017-12-11')).toEqual(false)
-      expect(wrapper.vm.isSelected(wrapper.props().dateOne)).toEqual(true)
+      expect(wrapper.vm.isSelected(wrapper.props().value)).toEqual(true)
     })
     test('previousMonth adds month first', () => {
       const firstMonth = wrapper.vm.months[1]
@@ -120,26 +118,27 @@ describe('AirbnbStyleDatepicker', () => {
     })
     test('date is in range', () => {
       wrapper = createDatePickerInstance({
-        dateOne: '2018-02-20',
-        dateTwo: '2018-02-26'
+        value: ['2018-02-20', '2018-02-26']
       })
       expect(wrapper.vm.isInRange('2018-03-22')).toBe(false)
       expect(wrapper.vm.isInRange('2018-02-22')).toBe(true)
     })
     test('event is emitted when selecting date', () => {
-      wrapper = createDatePickerInstance()
+      wrapper = createDatePickerInstance({
+        mode: 'range',
+        value: ['', '']
+      })
       const dateOne = '2018-01-10'
       const dateTwo = '2018-02-10'
       wrapper.vm.selectDate(dateOne)
       wrapper.vm.selectDate(dateTwo)
       wrapper.vm.$nextTick(function() {
-        expect(wrapper.emitted()['date-one-selected'][0]).toEqual([dateOne])
-        expect(wrapper.emitted()['date-two-selected'][0]).toEqual([dateTwo])
+        expect(wrapper.vm.selectedDate1).toEqual(dateOne)
       })
     })
     test('month of minDate is shown first', () => {
-      wrapper = createDatePickerInstance({ minDate: '2018-05-14' })
-      const firstVisibleMonth = wrapper.vm.months[1]
+      wrapper = createDatePickerInstance({ minDate: '2018-06-14', value: ['', ''] })
+      const firstVisibleMonth = wrapper.vm.months[0]
       expect(firstVisibleMonth.monthNumber).toBe(5)
     })
     test('emits closed event on datepicker close', () => {
@@ -155,15 +154,16 @@ describe('AirbnbStyleDatepicker', () => {
   describe('gui', () => {
     test('months shows month and year', () => {
       wrapper = createDatePickerInstance({
-        dateOne: '2017-12-10'
+        value: ['2018-02-20', '2018-02-26']
       })
       wrapper.setData({ showDatepicker: true })
 
       expect(wrapper.contains('.asd__month-name')).toBe(true)
-      expect(wrapper.find('.asd__month-name').text()).toContain('November 2017')
+      expect(wrapper.find('.asd__month-name').text()).toContain('January 2018')
     })
     test('datepicker wrapper is correct width', () => {
       wrapper = createDatePickerInstance({
+        value: ['2018-02-20', '2018-02-26'],
         monthsToShow: 2
       })
       wrapper.setData({ showDatepicker: true })
@@ -173,8 +173,7 @@ describe('AirbnbStyleDatepicker', () => {
     })
     test('selected date get selected class', () => {
       wrapper = createDatePickerInstance({
-        dateOne: '2017-12-10',
-        dateTwo: '2017-12-15'
+        value: ['2017-12-10', '2017-12-15']
       })
       wrapper.setData({ showDatepicker: true })
 
@@ -185,6 +184,7 @@ describe('AirbnbStyleDatepicker', () => {
     })
     test('is fullscreen on mobile', () => {
       wrapper = createDatePickerInstance({
+        value: ['2017-12-10', '2017-12-15'],
         fullscreenMobile: true,
         monthsToShow: 2
       })
@@ -198,7 +198,7 @@ describe('AirbnbStyleDatepicker', () => {
     test('disabled dates are not selectable', () => {
       wrapper = createDatePickerInstance({
         mode: 'single',
-        dateOne: '2018-10-10',
+        value: '2018-10-10',
         disabledDates: ['2018-10-20'],
         openOnFocus: true
       })
@@ -208,38 +208,38 @@ describe('AirbnbStyleDatepicker', () => {
       expect(disabledDate.classes()).toContain('asd__day--disabled')
 
       disabledDate.find('button').trigger('click')
-      expect(wrapper.emitted()['date-one-selected'][0]).not.toEqual([
+      expect(wrapper.props().value[0]).not.toEqual([
         '2018-10-20'
       ])
     })
-    // test('date are set if user types a valid date in input', () => {
-    //   wrapper = createDatePickerInstance({
-    //     mode: 'single',
-    //     dateOne: '',
-    //     disabledDates: ['2018-10-20']
-    //   })
-    //   wrapper.setData({ showDatepicker: true })
-    //   wrapper.vm.handleTriggerInput({ target: { value: '2018-11-23' } })
-    //   expect(wrapper.vm.selectedDate1).toEqual('2018-11-23')
+    test('date are set if user types a valid date in input', () => {
+      wrapper = createDatePickerInstance({
+        mode: 'single',
+        value: '',
+        disabledDates: ['2018-10-20']
+      })
+      wrapper.setData({ showDatepicker: true })
+      wrapper.vm.handleTriggerInput({ target: { value: '2018-11-23' } })
+      expect(wrapper.vm.selectedDate1).toEqual('2018-11-23')
 
-    //   wrapper.vm.handleTriggerInput({ target: { value: '2018-10-20' } })
-    //   expect(wrapper.vm.selectedDate1).not.toEqual('2018-10-20')
+      wrapper.vm.handleTriggerInput({ target: { value: '2018-10-20' } })
+      expect(wrapper.vm.selectedDate1).not.toEqual('2018-10-20')
 
-    //   wrapper.vm.handleTriggerInput({ target: { value: '20.10.2018' } })
-    //   expect(wrapper.vm.selectedDate1).not.toEqual('2018-10-20')
+      wrapper.vm.handleTriggerInput({ target: { value: '20.10.2018' } })
+      expect(wrapper.vm.selectedDate1).not.toEqual('2018-10-20')
 
-    //   wrapper.vm.handleTriggerInput({ target: { value: '32.10.2018' } })
-    //   expect(wrapper.vm.selectedDate1).not.toEqual('2018-10-32')
-    // })
-    // test('opens datepicker on focus', () => {
-    //   wrapper = createDatePickerInstance({
-    //     mode: 'single',
-    //     dateOne: '',
-    //     openOnFocus: true
-    //   })
-    //   wrapper.vm.triggerElement.dispatchEvent(new Event('focus'))
-    //   wrapper.update()
-    //   expect(wrapper.classes()).toContain('datepicker-open')
-    // })
+      wrapper.vm.handleTriggerInput({ target: { value: '32.10.2018' } })
+      expect(wrapper.vm.selectedDate1).not.toEqual('2018-10-32')
+    })
+    test('opens datepicker on focus', () => {
+      wrapper = createDatePickerInstance({
+        mode: 'single',
+        value: '',
+        openOnFocus: true
+      })
+      wrapper.vm.triggerElement.dispatchEvent(new Event('focus'))
+      wrapper.update()
+      expect(wrapper.classes()).toContain('asd__wrapper')
+    })
   })
 })

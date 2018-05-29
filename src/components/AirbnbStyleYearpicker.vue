@@ -31,35 +31,35 @@
             <div
               v-for="(yearWrapper,yearWrapperIndex) in yearsWrappers"
               :key="yearWrapper.name"
-              class="asd__month"
+              class="asd__year"
               :class="{hidden: yearWrapperIndex === 0 || yearWrapperIndex > showYears}"
               :style="yearWidthStyles"
             >
-              <div class="asd__year-name">{{ yearWrapper.name }}</div>
-              <div class="asd__months-list">
+              <div class="asd__year-wrapper-name">{{ yearWrapper.name }}</div>
+              <div class="asd__years-list">
                 <div
-                  class="asd__month-item"
+                  class="asd__year-item"
                   v-for="year in yearWrapper.years"
                   :key="year.name"
                   :class="{
-                    'asd__month-item--disabled': isDisabled(year),
-                    'asd__month-item--enabled' : !isDisabled(year),
-                    'asd__month-item--selected': isSelectedYear(year) || isSelectedYear(year),
-                    'asd__month-item--in-range': isInRange(year)
+                    'asd__year-item--disabled': isDisabled(year),
+                    'asd__year-item--enabled' : !isDisabled(year),
+                    'asd__year-item--selected': isSelectedYear(year) || isSelectedYear(year),
+                    'asd__year-item--in-range': isInRange(year)
                   }"
-                  :style="getMonthStyles(year)"
-                  @mouseover="() => { setHoverMonth(year) }"
+                  :style="getYearsWrapperStyles(year)"
+                  @mouseover="setHoverYear(year)"
                 >
                   <button
-                    class="asd__month-button"
+                    class="asd__year-button"
                     type="button"
                     :disabled="isDisabled(year)"
-                    @click="() => { selectYear(year) }"
+                    @click="selectYear(year)"
                     :class="{
-                      'asd__month-item--disabled': isDisabled(year),
-                      'asd__month-item--enabled' : !isDisabled(year),
-                      'asd__month-item--selected': isSelectedYear(year) || isSelectedYear(year),
-                      'asd__month-item--in-range': isInRange(year)
+                      'asd__year-item--disabled': isDisabled(year),
+                      'asd__year-item--enabled' : !isDisabled(year),
+                      'asd__year-item--selected': isSelectedYear(year) || isSelectedYear(year),
+                      'asd__year-item--in-range': isInRange(year)
                     }"
                     :data-date="year.name"
                   >{{ year.name }}</button>
@@ -97,8 +97,8 @@ export default {
   name: 'AirbnbStyleYearpicker',
   props: {
     triggerElementId: { type: String },
-    minDate: { type: [String, Date] },
-    maxDate: { type: [String, Date] },
+    minYear: { type: [String, Date] },
+    maxYear: { type: [String, Date] },
     mode: { type: String, default: 'range' },
     offsetY: { type: Number, default: 0 },
     offsetX: { type: Number, default: 0 },
@@ -111,7 +111,7 @@ export default {
     mobileHeader: { type: String, default: 'Select date' },
     disabledYears: { type: Array, default: () => [] },
     showActionButtons: { type: Boolean, default: true },
-    value: { type: Array, default: () => [] },
+    value: { type: [Array,String], default: () => ['', ''] },
     isTest: {
       type: Boolean,
       default: () => process.env.NODE_ENV === 'test'
@@ -235,7 +235,7 @@ export default {
         (this.selectedDate2 && this.selectedDate2 !== '')
       )
     },
-    allMonthsSelected() {
+    allYearsSelected() {
       if (this.isSingleMode) {
         return !!(this.selectedDate1 &&
           this.selectedDate !== '')
@@ -249,7 +249,7 @@ export default {
       )
     },
     hasMinDate() {
-      return !!(this.minDate && this.minDate !== '')
+      return !!(this.minYear && this.minYear !== '')
     },
     hasMinYear() {
       return !!(this.minYear && this.minYear !== '')
@@ -349,7 +349,7 @@ export default {
     isSameMonth(month1, month2) {
       return isSameMonth(month1, month2)
     },
-    getMonthStyles(year) {
+    getYearsWrapperStyles(year) {
       const isSelected = this.isSelectedYear(year)
       const isInRange = this.isInRange(year)
       const isDisabled = this.isDisabled(year)
@@ -364,7 +364,7 @@ export default {
           : isInRange ? this.colors.selectedText : this.colors.text,
         border: isSelected
           ? '1px double ' + this.colors.selected
-          : isInRange && this.allMonthsSelected
+          : isInRange && this.allYearsSelected
             ? '1px double ' + this.colors.inRangeBorder
             : ''
       }
@@ -549,17 +549,19 @@ export default {
     },
     setStartYears() {
       let m1, m2;
-      [m1, m2] = this.value
-      this.yearOne = m1
-      this.yearTwo = m2
+      if (Array.isArray(this.value)) {
+        [this.yearOne, this.yearTwo] = this.value
+      } else {
+        this.yearOne = parse(this.value)
+      }
       let startDate
       if (this.yearOne !== '') {
         startDate = startOfYear(this.yearOne)
       } else {
         startDate = startOfYear(new Date())
       }
-      if (this.hasMinDate && isBefore(startDate, this.minDate)) {
-        startDate = startOfYear(this.minDate)
+      if (this.hasMinDate && isBefore(startDate, this.minYear)) {
+        startDate = startOfYear(this.minYear)
       }
       this.startYearOfActualWrapper = this.getInitialWrapperDate(parse(startDate))
       this.startingYear = this.subtractYears(parse(this.startYearOfActualWrapper))
@@ -616,32 +618,32 @@ export default {
       }
       this.$emit('input', [this.selectedDate1, this.selectedDate2])
     },
-    setHoverMonth(month) {
-      this.hoverMonth = month.firstDay
+    setHoverYear(year) {
+      this.hoverMonth = year.firstDay
     },
-    isInRange(month) {
-      if (!this.allMonthsSelected || this.isSingleMode) {
+    isInRange(year) {
+      if (!this.allYearsSelected || this.isSingleMode) {
         return false
       }
       return (
-        (isAfter(month.firstDay, this.selectedDate1) &&
-      isBefore(month.lastDay, this.selectedDate2)) ||
-    (isAfter(month.firstDay, this.selectedDate1) &&
-      isBefore(month.firstDay, this.hoverMonth) &&
-      !this.allMonthsSelected)
+        (isAfter(year.firstDay, this.selectedDate1) &&
+      isBefore(year.lastDay, this.selectedDate2)) ||
+    (isAfter(year.firstDay, this.selectedDate1) &&
+      isBefore(year.firstDay, this.hoverMonth) &&
+      !this.allYearsSelected)
       )
     },
-    isBeforeMinDate(month) {
-      if (!this.minDate) {
+    isBeforeMinDate(year) {
+      if (!this.minYear) {
         return false
       }
-      return isBefore(month.lastDay, this.minDate)
+      return isBefore(year.lastDay, this.minYear)
     },
-    isAfterMaxDate(month) {
-      if (!this.maxDate) {
+    isAfterMaxDate(year) {
+      if (!this.maxYear) {
         return false
       }
-      return isAfter(month.firstDay, this.maxDate)
+      return isAfter(year.firstDay, this.maxYear)
     },
     isYearDisabled(year) {
       for (var i = this.disabledYears.length - 1; i >= 0; i--) {
@@ -827,7 +829,7 @@ $transition-time: 0.3s;
     }
   }
 
-  &__year-name {
+  &__year-wrapper-name {
     font-size: 1.3em;
     text-align: center;
     margin: 0 0 30px;
@@ -836,7 +838,7 @@ $transition-time: 0.3s;
     font-weight: bold;
   }
 
-  &__month {
+  &__year {
     transition: all $transition-time ease;
     display: inline-block;
     padding: 15px;
@@ -847,12 +849,12 @@ $transition-time: 0.3s;
     }
   }
 
-  &__months-list {
+  &__years-list {
     display: flex;
     flex-wrap: wrap;
   }
 
-  &__month-item {
+  &__year-item {
     $size: 40px;
     flex: 1;
     flex-basis: 30%;
@@ -880,7 +882,7 @@ $transition-time: 0.3s;
     }
   }
 
-  &__month-button {
+  &__year-button {
     background: transparent;
     width: 100%;
     height: 100%;

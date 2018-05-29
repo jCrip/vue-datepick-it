@@ -189,7 +189,7 @@
           >
 
           <airbnb-style-yearpicker
-            :trigger-element-id="'yearicker-input-trigger'"
+            :trigger-element-id="'yearpicker-input-trigger'"
             v-model="multipleDates"
             :mode="'range'"
             :min-year="parse('2018')"
@@ -207,13 +207,13 @@
           <input
             type="text"
             id="yearpicker-input-single-trigger"
-            :value="formatYears(multipleDates)"
+            :value="formatYearsSingle(singleYear)"
             placeholder="Select Years"
           >
 
           <airbnb-style-yearpicker
             :trigger-element-id="'yearpicker-input-single-trigger'"
-            v-model="multipleDates"
+            v-model="singleYear"
 
             :mode="'single'"
             :years-wrappers-to-show="2"
@@ -249,13 +249,13 @@
         <h3>Inline yearpicker with input</h3>
         <input
           id="yearpicker-inline-trigger"
-          :value="formatYears(multipleDates)"
+          :value="formatYearsSingle(singleYear)"
           type="text"
           placeholder="Select date"
         >
         <airbnb-style-yearpicker
           :trigger-element-id="'yearpicker-inline-trigger'"
-          v-model="multipleDates"
+          v-model="singleYear"
           :min-date="parse('2018-04')"
           :mode="'single'"
           :inline="true"
@@ -287,8 +287,10 @@ export default {
       dateFormat: 'DD MMMM YYYY', //'D MMM',
       monthFormat: 'MMMM YYYY', //'D MMM',
       yearFormat: 'YYYY',
-      inputDateOne: '',
+      inputDateOne: '2017-12-10',
       inputDateTwo: '',
+      yearDateOne: '',
+      yearDateTwo: '',
       inputSingleDateOne: '',
       buttonDateOne: '',
       buttonDateTwo: '',
@@ -316,6 +318,17 @@ export default {
       set(value) {
         [this.inputDateOne, this.inputDateTwo] = value
       }
+    },
+    singleYear: {
+      get() {
+        return [
+          this.yearDateOne,
+          this.yearDateTwo
+        ]
+      },
+      set(value) {
+        [this.yearDateOne, this.yearDateTwo] = value
+      }
     }
   },
   created() {
@@ -328,41 +341,6 @@ export default {
     parse(date) {
       return parse(date)
     },
-
-    formatMonths(VmodelButtons) {
-      let formattedDates = ''
-      if (VmodelButtons[0]) {
-        formattedDates = format(VmodelButtons[0], this.monthFormat, {locale: es})
-      }
-      if (VmodelButtons[1]) {
-        formattedDates += ' - ' + format(VmodelButtons[1], this.monthFormat, {locale: es})
-      }
-      return formattedDates
-    },
-    formatYears(VmodelButtons) {
-      let formattedDates = ''
-      if (VmodelButtons[0]) {
-        formattedDates = format(VmodelButtons[0], this.yearFormat, {locale: es})
-      }
-      if (VmodelButtons[1]) {
-        formattedDates += ' - ' + format(VmodelButtons[1], this.yearFormat, {locale: es})
-      }
-      return formattedDates
-    },
-    formatMonthsSingle(VmodelButtons) {
-      let formattedDates = ''
-      if (VmodelButtons[0]) {
-        formattedDates = format(VmodelButtons[0], this.monthFormat, {locale: es})
-      }
-      return formattedDates
-    },
-    formatYearSingle(VmodelButtons) {
-      let formattedDates = ''
-      if (VmodelButtons[0]) {
-        formattedDates = format(VmodelButtons[0], this.yearFormat, {locale: es})
-      }
-      return formattedDates
-    },
     formatDates(Dates) {
       let formattedDates = ''
       if (!Array.isArray(Dates)) {
@@ -374,6 +352,42 @@ export default {
         if (Dates[1]) {
           formattedDates += ' - ' + format(Dates[1], this.dateFormat, { locale: es })
         }
+      }
+      return formattedDates
+    },
+    formatMonths(Dates) {
+      let formattedDates = ''
+      if (Dates[0]) {
+        formattedDates = format(Dates[0], this.monthFormat, {locale: es})
+      }
+      if (Dates[1]) {
+        formattedDates += ' - ' + format(Dates[1], this.monthFormat, {locale: es})
+      }
+      return formattedDates
+    },
+
+    formatMonthsSingle(Dates) {
+      let formattedDates = ''
+      if (Dates[0]) {
+        formattedDates = format(Dates[0], this.monthFormat, {locale: es})
+      }
+      return formattedDates
+    },
+
+    formatYears(Dates) {
+      let formattedDates = ''
+      if (Dates[0]) {
+        formattedDates = format(Dates[0], this.yearFormat, {locale: es})
+      }
+      if (Dates[1]) {
+        formattedDates += ' - ' + format(Dates[1], this.yearFormat, {locale: es})
+      }
+      return formattedDates
+    },
+    formatYearsSingle(Dates) {
+      let formattedDates = ''
+      if (Dates[0]) {
+        formattedDates = format(Dates[0], this.yearFormat, {locale: es})
       }
       return formattedDates
     },
@@ -403,60 +417,60 @@ export default {
 }
 </script>
 
-<style lang="scss">
-html,
-body {
-  min-height: 200vh;
-  font-size: 14px;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-  Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  line-height: 18px;
-  font-weight: 400;
-  -webkit-font-smoothing: antialiased;
-  padding: 10px;
-}
-.app {
-  &.align-right {
-    text-align: right;
+  <style lang="scss">
+  html,
+  body {
+    min-height: 200vh;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    line-height: 18px;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    padding: 10px;
   }
-}
-h1 {
-  font-size: 1.8em;
-  line-height: 1.5em;
-}
-.monthpicker-container,.datepicker-container {
-  margin-bottom: 30px;
-}
+  .app {
+    &.align-right {
+      text-align: right;
+    }
+  }
+  h1 {
+    font-size: 1.8em;
+    line-height: 1.5em;
+  }
+  .monthpicker-container,.datepicker-container {
+    margin-bottom: 30px;
+  }
 
-#monthpicker-button-trigger,#datepicker-button-trigger {
-  background: #008489;
-  border: 1px solid #008489;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 15px;
-  font-weight: bold;
-  text-align: center;
-  min-width: 200px;
-}
-input {
-  padding: 6px 10px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-}
-.with-input {
-  .monthpicker-trigger,.datepicker-trigger {
-    //padding-right: 40px;
+  #datepicker-button-trigger,#monthpicker-button-trigger,#yearpicker-button-trigger {
+    background: #008489;
+    border: 1px solid #008489;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    min-width: 200px;
   }
-}
-.with-button {
-  .monthpicker-trigger,.datepicker-trigger {
-    //padding-left: 10px;
+  input {
+    padding: 6px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
   }
-}
-// .inline-with-input {
-  //   width: 600px;
-  //   input {
-    //     width: 100%;
-    //   }
-    // }
-    </style>
+  .with-input {
+    .datepicker-trigger,.monthpicker-trigger,.yearpicker-trigger {
+      //padding-right: 40px;
+    }
+  }
+  .with-button {
+    .datepicker-trigger,.monthpicker-trigger,.yearpicker-trigger {
+      //padding-left: 10px;
+    }
+  }
+  // .inline-with-input {
+    //   width: 600px;
+    //   input {
+      //     width: 100%;
+      //   }
+      // }
+      </style>
