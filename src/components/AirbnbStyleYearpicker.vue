@@ -16,12 +16,12 @@
       </div>
       <div class="asd__yearpicker-header">
         <div class="asd__change-year-button asd__change-year-button--previous">
-          <button @click="previousYear" type="button">
+          <button @click="previousYearWrapper" type="button">
             <svg viewBox="0 0 1000 1000"><path d="M336.2 274.5l-210.1 210h805.4c13 0 23 10 23 23s-10 23-23 23H126.1l210.1 210.1c11 11 11 21 0 32-5 5-10 7-16 7s-11-2-16-7l-249.1-249c-11-11-11-21 0-32l249.1-249.1c21-21.1 53 10.9 32 32z" /></svg>
           </button>
         </div>
         <div class="asd__change-year-button asd__change-year-button--next">
-          <button @click="nextYear" type="button">
+          <button @click="nextYearWrapper" type="button">
             <svg viewBox="0 0 1000 1000"><path d="M694.4 242.4l249.1 249.1c11 11 11 21 0 32L694.4 772.7c-5 5-10 7-16 7s-11-2-16-7c-11-11-11-21 0-32l210.1-210.1H67.1c-13 0-23-10-23-23s10-23 23-23h805.4L662.4 274.5c-21-21.1 11-53.1 32-32.1z" /></svg>
           </button>
         </div>
@@ -56,10 +56,7 @@
                     :disabled="isDisabled(year)"
                     @click="selectYear(year)"
                     :class="{
-                      'asd__year-item--disabled': isDisabled(year),
-                      'asd__year-item--enabled' : !isDisabled(year),
-                      'asd__year-item--selected': isSelectedYear(year) || isSelectedYear(year),
-                      'asd__year-item--in-range': isInRange(year)
+                      'asd__year-button--disabled': isDisabled(year),
                     }"
                     :data-date="year.name"
                   >{{ year.name }}</button>
@@ -91,6 +88,7 @@ import isSameYear from 'date-fns/is_same_year'
 import isValid from 'date-fns/is_valid'
 import startOfYear from 'date-fns/start_of_year'
 import endOfYear from 'date-fns/end_of_year'
+import isSameDay from 'date-fns/is_same_day'
 import { debounce, copyObject, findAncestor, randomString } from './../helpers'
 
 export default {
@@ -102,7 +100,6 @@ export default {
     mode: { type: String, default: 'range' },
     offsetY: { type: Number, default: 0 },
     offsetX: { type: Number, default: 0 },
-    yearsToShow: { type: Number, default: 2 },
     yearsWrappersToShow: { type: Number, default: 2 },
     yearsInWrapper: { type: Number, default: 9 },
     startOpen: { type: Boolean, default: false },
@@ -111,7 +108,7 @@ export default {
     mobileHeader: { type: String, default: 'Select date' },
     disabledYears: { type: Array, default: () => [] },
     showActionButtons: { type: Boolean, default: true },
-    value: { type: [Array,String], default: () => ['', ''] },
+    value: { type: [Array, String], default: () => ['', ''] },
     isTest: {
       type: Boolean,
       default: () => process.env.NODE_ENV === 'test'
@@ -123,7 +120,7 @@ export default {
       yearOne: '',
       yearTwo: '',
       wrapperId: 'airbnb-style-yearpicker-wrapper-' + randomString(5),
-      dateFormat: 'YYYY-MM-DD',
+      yearFormat: 'YYYY',
       showYearpicker: false,
       showYears: 2,
       startYearOfActualWrapper: '',
@@ -174,7 +171,7 @@ export default {
       selectedDate1: '',
       selectedDate2: '',
       isSelectingDate1: true,
-      hoverMonth: '',
+      hoverYear: '',
       alignRight: false,
       triggerPosition: {},
       triggerWrapperPosition: {},
@@ -277,12 +274,12 @@ export default {
   watch: {
     selectedDate1(newValue, oldValue) {
       let newDate =
-        !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
+        !newValue || newValue === '' ? '' : format(newValue, this.yearFormat)
       this.$emit('date-one-selected', newDate)
     },
     selectedDate2(newValue, oldValue) {
       let newDate =
-        !newValue || newValue === '' ? '' : format(newValue, this.dateFormat)
+        !newValue || newValue === '' ? '' : format(newValue, this.yearFormat)
       this.$emit('date-two-selected', newDate)
     },
     mode(newValue, oldValue) {
@@ -292,7 +289,7 @@ export default {
       if (this.dateOne !== this.selectedDate1) {
         this.startingYear = this.dateOne
         // this.setStartYears()
-        // this.generateYears()
+
         this.generateYearsWrappers()
       }
       if (this.isDateTwoBeforeDateOne) {
@@ -328,7 +325,6 @@ export default {
       : document.getElementById(this.triggerElementId)
 
     this.setStartYears()
-    // this.generateYears()
     this.generateYearsWrappers()
     if (this.startOpen || this.inline) {
       this.openYearpicker()
@@ -396,76 +392,54 @@ export default {
       !this.showYearpicker
       ) {
         this.openYearpicker()
-      } else if (
-        event.keyCode === keys.arrowUp &&
-    !event.shiftKey &&
-    this.showYearpicker
-      ) {
+      } else if (event.keyCode === keys.arrowUp && !event.shiftKey && this.showYearpicker) {
         this.closeYearpicker()
       } else if (
         event.keyCode === keys.arrowRight &&
     !event.shiftKey &&
     this.showYearpicker
       ) {
-        this.nextMonth()
+        this.nextYearWrapper()
       } else if (
         event.keyCode === keys.arrowLeft &&
     !event.shiftKey &&
     this.showYearpicker
       ) {
-        this.previousMonth()
+        this.previousYearWrapper()
       } else {
         if (this.mode === 'single') {
-          this.setMonthFromText(event.target.value)
+          this.setYearFromText(event.target.value)
         }
       }
     },
-    setMonthFromText(value) {
-      if (value.length < 10) {
+    setYearFromText(value) {
+      if (value.length !== 4) {
         return
       }
       // make sure format is either 'YYYY-MM-DD' or 'DD.MM.YYYY'
-      const isFormatYearFirst = value.match(
-        /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$/
+      const isFormatYear = value.match(
+        /(\d{4})/
       )
-      const isFormatDayFirst = value.match(
-        /^(0[1-9]|1[0-9]|2[0-9]|3[0-1])[.](0[1-9]|1[0-2])[.](\d{4})$/
-      )
-      if (!isFormatYearFirst && !isFormatDayFirst) {
+      if (!isFormatYear) {
         return
       }
-      if (isFormatDayFirst) {
-        //convert to YYYY-MM-DD
-        value = `${value.substring(6, 10)}-${value.substring(
-          3,
-          5
-        )}-${value.substring(0, 2)}`
-      }
-      const valueAsDateObject = new Date(value)
+      const valueAsDateObject = parse(value)
       if (!isValid(valueAsDateObject)) {
         return
       }
-      const formattedDate = format(valueAsDateObject, this.dateFormat)
+      const formattedDate = format(valueAsDateObject, this.yearFormat)
       if (
         this.isYearDisabled(formattedDate) ||
-        this.isBeforeMinDate(formattedDate) ||
-        this.isAfterMaxDate(formattedDate)
+        this.isBeforeMinYear(formattedDate) ||
+        this.isAfterMaxYear(formattedDate)
       ) {
         return
       }
       this.startingYear = subYears(formattedDate, 1)
-      // this.generateYears()
+
       this.generateYearsWrappers()
-      let d = new Date(value)
-      let m = this.getMonthData(d.getMonth(), value)
-      this.selectYear(m)
-    },
-    generateYears() {
-      this.years = []
-      for (let i = 0; i < this.showYears + 2; i++) {
-        this.years.push(this.getYear(this.startingYear))
-        this.startingYear = this.addYears(this.startingYear)
-      }
+      let yw = this.getYearData(value)
+      this.selectYear(yw)
     },
     generateYearsWrappers() {
       this.yearsWrappers = []
@@ -497,22 +471,6 @@ export default {
         firstDay: startOfYear(parse(year.toString())),
         lastDay: endOfYear(parse(year.toString()))
       }
-    },
-    getYear(date) {
-      const name = date.getFullYear()
-
-      return {
-        name,
-        months: this.getMonths(date)
-      }
-    },
-    getMonths(date) {
-      const months = []
-      for (let month = 0; month < 12; month += 1) {
-        let data = this.getMonthData(month, date)
-        months.push(data)
-      }
-      return months
     },
     getMonthData(monthNumber, date) {
       return {
@@ -548,7 +506,6 @@ export default {
       }
     },
     setStartYears() {
-      let m1, m2;
       if (Array.isArray(this.value)) {
         [this.yearOne, this.yearTwo] = this.value
       } else {
@@ -587,8 +544,8 @@ export default {
     },
     selectYear(year) {
       if (
-        this.isBeforeMinDate(year.firstDay) ||
-      this.isAfterMaxDate(year.firstDay) ||
+        this.isBeforeMinYear(year.firstDay) ||
+      this.isAfterMaxYear(year.firstDay) ||
       this.isYearDisabled(year.firstDay)) {
         return
       }
@@ -600,26 +557,31 @@ export default {
         this.closeYearpicker()
         return
       }
-
-      if (this.isSelectingDate1 || isBefore(year.firstDay, this.selectedDate1)) {
-        this.selectedDate1 = year.firstDay
-        this.isSelectingDate1 = false
-
-        if (isBefore(this.selectedDate2, year.lastDay)) {
-          this.selectedDate2 = ''
-        }
-      } else {
-        this.selectedDate2 = year.lastDay
+      if (isSameDay(this.selectedDate1, year.firstDay)) {
+        this.selectedDate1 = ''
+        this.selectedDate2 = ''
         this.isSelectingDate1 = true
+      } else {
+        if (this.isSelectingDate1 || isBefore(year.firstDay, this.selectedDate1)) {
+          this.selectedDate1 = year.firstDay
+          this.isSelectingDate1 = false
 
-        if (isAfter(this.selectedDate1, year.lastDay)) {
-          this.selectedDate1 = ''
+          if (isBefore(this.selectedDate2, year.lastDay)) {
+            this.selectedDate2 = ''
+          }
+        } else {
+          this.selectedDate2 = year.lastDay
+          this.isSelectingDate1 = true
+
+          if (isAfter(this.selectedDate1, year.lastDay)) {
+            this.selectedDate1 = ''
+          }
         }
       }
-      this.$emit('input', [this.selectedDate1, this.selectedDate2])
+      if (this.allYearsSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
     },
     setHoverYear(year) {
-      this.hoverMonth = year.firstDay
+      this.hoverYear = year
     },
     isInRange(year) {
       if (!this.allYearsSelected || this.isSingleMode) {
@@ -629,17 +591,17 @@ export default {
         (isAfter(year.firstDay, this.selectedDate1) &&
       isBefore(year.lastDay, this.selectedDate2)) ||
     (isAfter(year.firstDay, this.selectedDate1) &&
-      isBefore(year.firstDay, this.hoverMonth) &&
+      isBefore(year.firstDay, this.hoverYear) &&
       !this.allYearsSelected)
       )
     },
-    isBeforeMinDate(year) {
+    isBeforeMinYear(year) {
       if (!this.minYear) {
         return false
       }
       return isBefore(year.lastDay, this.minYear)
     },
-    isAfterMaxDate(year) {
+    isAfterMaxYear(year) {
       if (!this.maxYear) {
         return false
       }
@@ -654,17 +616,17 @@ export default {
     isDisabled(year) {
       return (
         this.isYearDisabled(year) ||
-    this.isBeforeMinDate(year) ||
-    this.isAfterMaxDate(year)
+    this.isBeforeMinYear(year) ||
+    this.isAfterMaxYear(year)
       )
     },
-    previousYear() {
+    previousYearWrapper() {
       this.startingYear = this.subtractYears(this.yearsWrappers[0].years[0].firstDay)
 
       this.yearsWrappers.unshift(this.getYearWrapper(this.startingYear))
       this.yearsWrappers.splice(this.yearsWrappers.length - 1, 1)
     },
-    nextYear() {
+    nextYearWrapper() {
       this.startingYear = this.addYears(
         this.yearsWrappers[this.yearsWrappers.length - 1].years[0].firstDay)
       this.yearsWrappers.push(this.getYearWrapper(this.startingYear))
@@ -730,7 +692,7 @@ export default {
       this.isTablet = viewportWidth >= 768 && viewportWidth <= 1024
       this.showYears = this.isMobile
         ? 1
-        : this.isTablet && this.yearsToShow > 2 ? 2 : this.yearsToShow
+        : this.isTablet && this.yearsWrappersToShow > 2 ? 2 : this.yearsWrappersToShow
 
       this.$nextTick(function() {
         const monthpickerWrapper = document.getElementById(this.wrapperId)

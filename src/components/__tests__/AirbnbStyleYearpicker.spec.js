@@ -34,7 +34,7 @@ const createYearPickerInstance = (propsData, options) => {
   h = new TestHelpers(wrapper, expect)
   return wrapper
 }
-// const yearpickerWrapper = '.asd__wrapper'
+const yearpickerWrapper = '.asd__wrapper'
 let wrapper
 
 describe('AirbnbStyleYearpicker', () => {
@@ -46,7 +46,6 @@ describe('AirbnbStyleYearpicker', () => {
   describe('lifecycle hooks', () => {
     test('creates correct amount of years', () => {
       wrapper = createYearPickerInstance()
-      // console.log(wrapper.props().yearsWrappersToShow)
       expect(wrapper.vm.yearsWrappers.length).toEqual(wrapper.props().yearsWrappersToShow + 2)
     })
     test('dates are set when initial values are passed', () => {
@@ -92,156 +91,172 @@ describe('AirbnbStyleYearpicker', () => {
   })
 
   describe('methods', () => {
-    // test('getYear() returns correct values', () => {
-    //   const wrapper = createMonthPickerInstance()
-    //   let year = wrapper.vm.getYear(new Date('2017-12-01'))
-    //   expect(year.name).toBe(2017)
-    //   expect(year.months.length).toBeGreaterThan(0)
-    // })
-    // test('getMonths() returns correct values', () => {
-    //   let months = wrapper.vm.getMonths('2017-12-01')
-    //   expect(months.length).toEqual(12)
-    // })
-    // test('setHoverMonth() sets correct value', () => {
-    //   const wrapper = createMonthPickerInstance()
-    //   wrapper.vm.setHoverMonth(wrapper.vm.getMonths('2017-12-01')[0])
-    //   expect(format(wrapper.vm.hoverMonth, 'YYYY-MM-DD')).toBe(format(parse('2017-01-01'), 'YYYY-MM-DD'))
-    // })
-    // test('isSelected() works', () => {
-    //   wrapper = createMonthPickerInstance({
-    //     mode: 'single',
-    //     value: ['Enero 2018', '']
-    //   })
-    //   let enero2018 = wrapper.vm.getMonths('2018-12-01')[0]
-    //   expect(wrapper.vm.isSelected('2017-12-11')).toEqual(false)
-    //   expect(wrapper.vm.isSelected(enero2018)).toEqual(true)
-    // })
-    // test('previousYear adds year first', () => {
-    //   const firstYear = wrapper.vm.years[1]
-    //   wrapper.setData({ showMonthpicker: true })
-    //   wrapper.vm.previousYear()
-    //   expect(wrapper.vm.years[0].name).not.toEqual(firstYear.name)
-    // })
-    // test('nextYear adds year last', () => {
-    //   const lastYear = wrapper.vm.years[wrapper.vm.years.length - 1]
-    //   wrapper.setData({ showMonthpicker: true })
-    //   wrapper.vm.nextYear()
-    //   expect(wrapper.vm.years[0].name).not.toEqual(lastYear.name)
-    // })
-    // test('closeMonthpicker sets correct value', () => {
-    //   wrapper.setData({
-    //     triggerElement: document.createElement('div'),
-    //     showMonthpicker: true
-    //   })
-    //   wrapper.vm.closeMonthpicker()
-    //   expect(wrapper.vm.showMonthpicker).toBe(false)
-    // })
-    // test('month is in range', () => {
-    //   wrapper = createMonthPickerInstance({
-    //     value: ['January 2018', 'April 2018']
-    //   })
-    //   expect(wrapper.vm.isInRange(wrapper.vm.years[2].months[6])).toBe(false)
-    //   expect(wrapper.vm.isInRange(wrapper.vm.years[2].months[2])).toBe(false)
-    //   expect(wrapper.vm.isInRange(wrapper.vm.years[1].months[1])).toBe(true)
-    // })
-    // test('event is emitted when selecting month', () => {
-    //   wrapper = createMonthPickerInstance()
-    //   const monthOne = wrapper.vm.years[2].months[7]
-    //   const monthTwo = wrapper.vm.years[3].months[5]
-    //   wrapper.vm.selectMonth(monthOne)
-    //   wrapper.vm.selectMonth(monthTwo)
+    test('getYearData() returns correct values', () => {
+      const wrapper = createYearPickerInstance()
+      let year = wrapper.vm.getYearData('2015')
+      expect(year.name).toBe('2015')
+      expect(year.firstDay).toEqual(parse('2015-01-01'))
+      expect((year.lastDay)).toEqual(endOfYear(parse('2015')))
+    })
+    test('getYearWrapper() returns correct values', () => {
+      let years = wrapper.vm.getYearWrapper(parse('2017'))
+      expect(years.years.length).toEqual(9)
+    })
+    test('setHoverMonth() sets correct value', () => {
+      const wrapper = createYearPickerInstance()
+      let yearToSelect = wrapper.vm.getYearWrapper(parse('2017')).years[0]
+      wrapper.vm.setHoverYear(yearToSelect)
+      expect(yearToSelect).toBe(wrapper.vm.hoverYear)
+    })
+    test('isSelectedYear() works', () => {
+      wrapper = createYearPickerInstance({
+        mode: 'single',
+        value: '2018 '
+      })
+      let y2018 = wrapper.vm.getYearWrapper(parse('2018')).years[0]
+      let y2019 = wrapper.vm.getYearWrapper(parse('2018')).years[1]
+      expect(wrapper.vm.isSelectedYear(y2019)).toEqual(false)
+      expect(wrapper.vm.isSelectedYear(y2018)).toEqual(true)
+    })
+    test('previousYearWrapper adds year first', () => {
+      const firstYearWrapper = wrapper.vm.yearsWrappers[0]
+      wrapper.setData({ showYearpicker: true })
+      expect(wrapper.vm.yearsWrappers[0].name).toEqual(firstYearWrapper.name)
+      wrapper.vm.previousYearWrapper()
+      expect(wrapper.vm.yearsWrappers[0].name).not.toEqual(firstYearWrapper.name)
+    })
+    test('nextYear adds year last', () => {
+      const lastYearWrapper = wrapper.vm.yearsWrappers[wrapper.vm.yearsWrappers.length - 1]
+      wrapper.setData({ showYearpicker: true })
+      expect(wrapper.vm.yearsWrappers[wrapper.vm.yearsWrappers.length - 1].name).toEqual(lastYearWrapper.name)
+      wrapper.vm.nextYearWrapper()
+      expect(wrapper.vm.yearsWrappers[wrapper.vm.yearsWrappers.length - 1].name).not.toEqual(lastYearWrapper.name)
+    })
+    test('closeYearpicker sets correct value', () => {
+      wrapper.setData({
+        triggerElement: document.createElement('div'),
+        showYearpicker: true
+      })
+      wrapper.vm.closeYearpicker()
+      expect(wrapper.vm.showYearpicker).toBe(false)
+    })
+    test('year is in range', () => {
+      wrapper = createYearPickerInstance({
+        value: ['2014', '2020']
+      })
+      expect(wrapper.vm.isInRange(wrapper.vm.yearsWrappers[2].years[6])).toBe(false)
+      expect(wrapper.vm.isInRange(wrapper.vm.yearsWrappers[2].years[2])).toBe(false)
+      expect(wrapper.vm.isInRange(wrapper.vm.yearsWrappers[1].years[5])).toBe(true)
+    })
+    test('event is emitted when selecting year', () => {
+      wrapper = createYearPickerInstance()
+      const yearOne = wrapper.vm.yearsWrappers[2].years[7]
+      const yearTwo = wrapper.vm.yearsWrappers[3].years[5]
+      wrapper.vm.selectYear(yearOne)
+      wrapper.vm.selectYear(yearTwo)
 
-    //   wrapper.vm.$nextTick(function() {
-    //     expect(wrapper.vm.selectedDate1).toEqual(monthOne.firstDay)
-    //     expect(wrapper.vm.selectedDate2).toEqual(monthTwo.lastDay)
-    //   })
-    // })
-    // test('year of minMonth is shown first', () => {
-    //   wrapper = createMonthPickerInstance({ minMonth: 'May 2020' })
-    //   const firstVisibleYear = wrapper.vm.years[1]
-    //   expect(firstVisibleYear.name).toBe(2020)
-    // })
-    // test('emits closed event on monthpicker close', () => {
-    //   wrapper = createMonthPickerInstance()
-    //   wrapper.setData({ triggerElement: document.createElement('div') })
-    //   wrapper.vm.closeMonthpicker()
-    //   wrapper.vm.$nextTick(function() {
-    //     expect(wrapper.emitted().closed).toBeTruthy()
-    //   })
-    // })
+      wrapper.vm.$nextTick(function() {
+        expect(wrapper.vm.selectedDate1).toEqual(yearOne.firstDay)
+        expect(wrapper.vm.selectedDate2).toEqual(yearTwo.lastDay)
+      })
+    })
+    test('year of minMonth is shown first', () => {
+      const minYearToTest = 2020
+      wrapper = createYearPickerInstance({ minYear: minYearToTest.toString() })
+      const yearsInWrapper = wrapper.vm.yearsInWrapper
+      const minYearInsideWrapper = minYearToTest - (Math.floor(yearsInWrapper / 2))
+      const maxYearInsideWrapper = minYearToTest + (Math.floor(yearsInWrapper / 2))
+      const label = `${minYearInsideWrapper}–${maxYearInsideWrapper}`
+      const firstVisibleYear = wrapper.vm.yearsWrappers[1]
+      expect(firstVisibleYear.name).toBe(label)
+    })
+    test('emits closed event on monthpicker close', () => {
+      wrapper = createYearPickerInstance()
+      wrapper.setData({ triggerElement: document.createElement('div') })
+      wrapper.vm.closeYearpicker()
+      wrapper.vm.$nextTick(function() {
+        expect(wrapper.emitted().closed).toBeTruthy()
+      })
+    })
   })
 
   describe('gui', () => {
-    // test('Year shows year title', () => {
-    //   wrapper = createMonthPickerInstance({
-    //     value: ['January 2018', 'June 2018']
-    //   })
-    //   wrapper.setData({ showMonthpicker: true })
+    test('YearWrapper shows year title', () => {
+      const initialYear = 2018
+      const finalYear = 2020
+      wrapper = createYearPickerInstance({
+        value: [initialYear.toString(), finalYear.toString()]
+      })
+      wrapper.setData({ showYearpicker: true })
+      const yearsInWrapper = wrapper.vm.yearsInWrapper
+      const minYearInsideWrapper = initialYear - (Math.floor(yearsInWrapper / 2))
+      const maxYearInsideWrapper = minYearInsideWrapper + yearsInWrapper - 1
+      const label = `${minYearInsideWrapper}–${maxYearInsideWrapper}`
+      expect(wrapper.contains('.asd__year-wrapper-name')).toBe(true)
+      // console.log(wrapper.findAll('.asd__year-wrapper-name').wrappers[1].text())
+      expect(wrapper.findAll('.asd__year-wrapper-name').wrappers[1].text()).toContain(label)
+    })
+    test('yearpicker wrapper is correct width', () => {
+      wrapper = createYearPickerInstance({
+        yearsWrappersToShow: 2
+      })
+      wrapper.setData({ showYearpicker: true })
 
-    //   expect(wrapper.contains('.asd__year-name')).toBe(true)
-    //   expect(wrapper.find('.asd__year-name').text()).toContain('2017')
-    // })
-    // test('monthpicker wrapper is correct width', () => {
-    //   wrapper = createMonthPickerInstance({
-    //     yearsToShow: 2
-    //   })
-    //   wrapper.setData({ showMonthpicker: true })
+      let dWrapper = wrapper.find(yearpickerWrapper)
+      expect(dWrapper.element.style.width).toBe(wrapper.vm.width * 2 + 'px')
+    })
+    test('selected year get selected class', () => {
+      wrapper = createYearPickerInstance({
+        value: ['2018', '2022']
+      })
+      wrapper.setData({ showYearpicker: true })
+      expect(wrapper.contains('.asd__year-item--selected')).toBe(true)
+      expect(wrapper.findAll('.asd__year-item--selected').length).toBe(2)
+      expect(wrapper.contains('.asd__year-item--in-range')).toBe(true)
+      expect(wrapper.findAll('.asd__year-item--in-range').length).toBe(3)
+    })
+    test('is fullscreen on mobile', () => {
+      wrapper = createYearPickerInstance({
+        fullscreenMobile: true,
+        yearsWrappersToShow: 2
+      })
+      wrapper.vm.isMobile = true
+      wrapper.vm.viewportWidth = '650px'
+      wrapper.setData({ showYearpicker: true })
 
-    //   let dWrapper = wrapper.find(monthpickerWrapper)
-    //   expect(dWrapper.element.style.width).toBe(wrapper.vm.width * 2 + 'px')
-    // })
-    // test('selected month get selected class', () => {
-    //   wrapper = createMonthPickerInstance({
-    //     value: ['January 2018', 'May 2018']
-    //   })
-    //   wrapper.setData({ showMonthpicker: true })
-    //   expect(wrapper.contains('.asd__month-item--selected')).toBe(true)
-    //   expect(wrapper.findAll('.asd__month-item--selected').length).toBe(2)
-    //   expect(wrapper.contains('.asd__month-item--in-range')).toBe(true)
-    //   expect(wrapper.findAll('.asd__month-item--in-range').length).toBe(3)
-    // })
-    // test('is fullscreen on mobile', () => {
-    //   wrapper = createMonthPickerInstance({
-    //     fullscreenMobile: true,
-    //     monthsToShow: 2
-    //   })
-    //   wrapper.vm.isMobile = true
-    //   wrapper.vm.viewportWidth = '650px'
-    //   wrapper.setData({ showMonthpicker: true })
-
-    //   let dWrapper = wrapper.find(monthpickerWrapper)
-    //   expect(dWrapper.classes()).toContain('asd__wrapper--full-screen')
-    // })
-    // test('disabled months are not selectable', () => {
-    //   wrapper = createMonthPickerInstance({
-    //     mode: 'single',
-    //     value: ['January 2018', ''],
-    //     disabledMonths: ['March 2018']
-    //   })
-    //   wrapper.setData({ showMonthpicker: true })
-    //   const disabledMonth = wrapper.find('.asd__month-button[data-date="2018-03"]')
-    //   expect(disabledMonth.classes()).toContain('asd__month-button--disabled')
-    //   disabledMonth.trigger('click')
-    //   expect(wrapper.vm.selectedDate1).not.toEqual(startOfMonth(parse('2018-03')))
-    //   expect(wrapper.vm.selectedDate1).toEqual(startOfMonth(parse('2018-01')))
-    // })
-    // test('month are set if user types a valid date in input', () => {
-    //   wrapper = createMonthPickerInstance({
-    //     mode: 'single',
-    //     value: ['January 2018', '']
-    //   })
-    //   wrapper.setData({ showMonthpicker: true })
-    //   wrapper.vm.handleTriggerInput({ target: { value: '2018-01' } })
-    //   expect(parse(wrapper.vm.selectedDate1)).toEqual(parse('2018-01'))
+      let dWrapper = wrapper.find(yearpickerWrapper)
+      expect(dWrapper.classes()).toContain('asd__wrapper--full-screen')
+    })
+    test('disabled years are not selectable', () => {
+      wrapper = createYearPickerInstance({
+        mode: 'single',
+        value: '2019',
+        disabledYears: [parse('2018')]
+      })
+      wrapper.setData({ showYearpicker: true })
+      const disabledYear = wrapper.find('.asd__year-button[data-date="2018"]')
+      expect(disabledYear.classes()).toContain('asd__year-button--disabled')
+      disabledYear.trigger('click')
+      expect(wrapper.vm.selectedDate1).not.toEqual(startOfYear(parse('2018')))
+      expect(wrapper.vm.selectedDate1).toEqual(startOfYear(parse('2019')))
+    })
+    test('year are set if user types a valid year in input', () => {
+      wrapper = createYearPickerInstance({
+        mode: 'single',
+        value: ['2018', '2020']
+      })
+      wrapper.setData({ showYearpicker: true })
+      wrapper.vm.handleTriggerInput({ target: { value: '2024' } })
+      expect(parse(wrapper.vm.selectedDate1)).toEqual(startOfYear('2024'))
+    })
+    test('opens yearpicker on focus', () => {
+      wrapper = createYearPickerInstance({
+        mode: 'single',
+        value: ['', ''],
+        openOnFocus: true
+      })
+      wrapper.vm.triggerElement.dispatchEvent(new Event('focus'))
+      expect(wrapper.classes()).toContain('asd__wrapper')
+    })
   })
-  //   // test('opens monthpicker on focus', () => {
-  //   //   wrapper = createMonthPickerInstance({
-  //   //     mode: 'single',
-  //   //     dateOne: '',
-  //   //     openOnFocus: true
-  //   //   })
-  //   //   wrapper.vm.triggerElement.trigger('focus')
-  //   //   expect(wrapper.classes()).toContain('monthpicker-open')
-  //   // })
-  // })
 })

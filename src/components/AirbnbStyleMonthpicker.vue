@@ -534,9 +534,7 @@ export default {
           }
         }
       }
-      if (this.allMonthsSelected) {
-        this.$emit('input', [this.selectedDate1, this.selectedDate2])
-      }
+      if (this.allMonthsSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
     },
     setHoverMonth(month) {
       this.hoverMonth = month.firstDay
