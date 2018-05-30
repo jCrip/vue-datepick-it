@@ -7,22 +7,17 @@
           <input
             type="text"
             id="datepicker-input-trigger"
-            :value="formatDates(inputDateOne, inputDateTwo)"
+            :value="formatDates(multipleDates)"
             placeholder="Select dates"
           >
-
           <airbnb-style-datepicker
             :trigger-element-id="'datepicker-input-trigger'"
             :mode="'range'"
-            :date-one="inputDateOne"
-            :date-two="inputDateTwo"
+            v-model="multipleDates"
             :min-date="parse('2018-02-28')"
             :open-on-focus="true"
-
             :months-to-show="2"
             :show-action-buttons="true"
-            @date-one-selected="val => { inputDateOne = val }"
-            @date-two-selected="val => { inputDateTwo = val }"
             @apply="applyMethod"
             @closed="closedMethod"
           />
@@ -35,16 +30,15 @@
           <input
             type="text"
             id="datepicker-input-single-trigger"
-            :value="formatDates(inputSingleDateOne)"
+            :value="formatDates(inputDateOne)"
             placeholder="Select dates"
           >
 
           <airbnb-style-datepicker
             :trigger-element-id="'datepicker-input-single-trigger'"
             :mode="'single'"
-            :date-one="inputSingleDateOne"
+            v-model="inputDateOne"
             :months-to-show="2"
-            @date-one-selected="val => { inputSingleDateOne = val }"
             @apply="applyMethod"
             @closed="closedMethod"
           />
@@ -54,20 +48,17 @@
       <div class="datepicker-container with-button">
         <h3>Range datepicker with button</h3>
         <div class="datepicker-trigger">
-          <button id="datepicker-button-trigger">{{ formatDates(buttonDateOne, buttonDateTwo) || 'Select dates' }}</button>
+          <button id="datepicker-button-trigger">{{ formatDates(multipleDates) || 'Select dates' }}</button>
 
           <airbnb-style-datepicker
             :trigger-element-id="'datepicker-button-trigger'"
             :mode="'range'"
-            :date-one="buttonDateOne"
-            :date-two="buttonDateTwo"
+            v-model="multipleDates"
             :min-date="parse('2018-04-18')"
             :fullscreen-mobile="true"
             :months-to-show="2"
             :trigger="trigger"
             :offset-y="10"
-            @date-one-selected="val => { buttonDateOne = val }"
-            @date-two-selected="val => { buttonDateTwo = val }"
             @apply="applyMethod"
             @closed="closedMethod"
           />
@@ -78,23 +69,24 @@
         <h3>Inline datepicker with input</h3>
         <input
           id="datepicker-inline-trigger"
-          :value="formatDates(inlineDateOne)"
+          :value="formatDates(inputDateOne)"
           type="text"
           placeholder="Select date"
         >
         <airbnb-style-datepicker
           :trigger-element-id="'datepicker-inline-trigger'"
+          v-model="inputDateOne"
           :mode="'single'"
           :inline="true"
           :fullscreen-mobile="false"
-          :date-one="inlineDateOne"
           :months-to-show="2"
           :disabled-dates="[parse('2018-04-30'), parse('2018-05-10'), parse('2018-12-14')]"
-          @date-one-selected="val => { inlineDateOne = val }"
           @apply="applyMethod"
           @closed="closedMethod"
         />
       </div>
+    </div>
+    <div v-if="showMonthpickers">
 
       <div class="monthpicker-container datepicker-container with-input">
         <h3>Range monthpicker with input</h3>
@@ -102,21 +94,17 @@
           <input
             type="text"
             id="monthpicker-input-trigger"
-            :value="formatMonths(inputDateOne,inputDateTwo)"
+            :value="formatMonths(multipleDates)"
             placeholder="Select dates"
           >
 
           <airbnb-style-monthpicker
             :trigger-element-id="'monthpicker-input-trigger'"
-            :month-one="inputDateOne"
-            :month-two="inputDateTwo"
+            v-model="multipleDates"
             :mode="'range'"
-
-            :min-date="parse('2018-02')"
-            :months-to-show="2"
+            :min-month="parse('2018-02')"
+            :years-to-show="2"
             :show-action-buttons="true"
-            @date-one-selected="val => { inputDateOne = val }"
-            @date-two-selected="val => { inputDateTwo = val }"
             @apply="applyMethod"
             @closed="closedMethod"
           />
@@ -129,15 +117,16 @@
           <input
             type="text"
             id="monthpicker-input-single-trigger"
-            :value="formatMonths(inputSingleDateOne)"
+            :value="formatMonthsSingle(multipleDates)"
             placeholder="Select dates"
           >
 
           <airbnb-style-monthpicker
             :trigger-element-id="'monthpicker-input-single-trigger'"
+            v-model="multipleDates"
+
             :mode="'single'"
-            :months-to-show="2"
-            @date-one-selected="val => { inputSingleDateOne = val }"
+            :years-to-show="2"
             @apply="applyMethod"
             @closed="closedMethod"
           />
@@ -147,22 +136,19 @@
       <div class="monthpicker-container with-button">
         <h3>Range monthpicker with button</h3>
         <div class="monthpicker-trigger">
-          <button id="monthpicker-button-trigger">{{ formatMonths(buttonDateOne, buttonDateTwo) || 'Select dates' }}</button>
+          <button id="monthpicker-button-trigger">{{ formatMonths(multipleDates) || 'Select dates' }}</button>
 
           <airbnb-style-monthpicker
-            :month-one="buttonDateOne"
-            :month-two="buttonDateTwo"
-            :min-date="parse(new Date())"
-            :max-date="parse('2018-12')"
+            v-model="multipleDates"
+
+            :max-month="parse('2018-12')"
             :trigger-element-id="'monthpicker-button-trigger'"
             :mode="'range'"
             :inline="false"
             :fullscreen-mobile="true"
-            :months-to-show="2"
+            :years-to-show="2"
             :trigger="trigger"
             :offset-y="10"
-            @date-one-selected="val => { buttonDateOne = val }"
-            @date-two-selected="val => { buttonDateTwo = val }"
             @apply="applyMethod"
             @closed="closedMethod"
           />
@@ -173,29 +159,118 @@
         <h3>Inline monthpicker with input</h3>
         <input
           id="monthpicker-inline-trigger"
-          :value="formatMonths(inputDateOne)"
+          :value="formatMonthsSingle(multipleDates)"
           type="text"
           placeholder="Select date"
         >
         <airbnb-style-monthpicker
           :trigger-element-id="'monthpicker-inline-trigger'"
-          :month-one="parse('2018-05')"
+          v-model="multipleDates"
           :min-date="parse('2018-04')"
           :mode="'single'"
           :inline="true"
           :fullscreen-mobile="false"
-          :months-to-show="2"
+          :years-to-show="2"
           :disabled-months="[parse('2018-06')]"
-          @date-one-selected="val => { inputDateOne = val }"
-          @date-two-selected="val => { inputDateTwo = val }"
           @apply="applyMethod"
           @closed="closedMethod"
         />
       </div>
+    </div>
+    <div v-if="showYearpickers">
+      <div class="yearpicker-container with-input">
+        <h3>Range yearpicker with input</h3>
+        <div class="yearpicker-trigger">
+          <input
+            type="text"
+            id="yearpicker-input-trigger"
+            :value="formatYears(multipleDates)"
+            placeholder="Select dates"
+          >
 
+          <airbnb-style-yearpicker
+            :trigger-element-id="'yearpicker-input-trigger'"
+            v-model="multipleDates"
+            :mode="'range'"
+            :min-year="parse('2018')"
+            :years-wrappers-to-show="2"
+            :show-action-buttons="true"
+            @apply="applyMethod"
+            @closed="closedMethod"
+          />
+        </div>
+      </div>
+
+      <div class="yearpicker-container single-with-input">
+        <h3>Single yearpicker with input</h3>
+        <div class="yearpicker-trigger">
+          <input
+            type="text"
+            id="yearpicker-input-single-trigger"
+            :value="formatYearsSingle(singleYear)"
+            placeholder="Select Years"
+          >
+
+          <airbnb-style-yearpicker
+            :trigger-element-id="'yearpicker-input-single-trigger'"
+            v-model="singleYear"
+
+            :mode="'single'"
+            :years-wrappers-to-show="2"
+            @apply="applyMethod"
+            @closed="closedMethod"
+          />
+        </div>
+      </div>
+
+      <div class="yearpicker-container with-button">
+        <h3>Range yearpicker with button</h3>
+        <div class="yearpicker-trigger">
+          <button id="yearpicker-button-trigger">{{ formatYears(multipleDates) || 'Select Years' }}</button>
+
+          <airbnb-style-yearpicker
+            v-model="multipleDates"
+
+            :max-month="parse('2018-12')"
+            :trigger-element-id="'yearpicker-button-trigger'"
+            :mode="'range'"
+            :inline="false"
+            :fullscreen-mobile="true"
+            :years-wrappers-to-show="2"
+            :trigger="trigger"
+            :offset-y="10"
+            @apply="applyMethod"
+            @closed="closedMethod"
+          />
+        </div>
+      </div>
+
+      <div class="yearpicker-container inline-with-input">
+        <h3>Inline yearpicker with input</h3>
+        <input
+          id="yearpicker-inline-trigger"
+          :value="formatYearsSingle(singleYear)"
+          type="text"
+          placeholder="Select date"
+        >
+        <airbnb-style-yearpicker
+          :trigger-element-id="'yearpicker-inline-trigger'"
+          v-model="singleYear"
+          :min-date="parse('2018-04')"
+          :mode="'single'"
+          :inline="true"
+          :fullscreen-mobile="false"
+          :years-wrappers-to-show="2"
+          :disabled-years="[parse('2018')]"
+          @apply="applyMethod"
+          @closed="closedMethod"
+        />
+      </div>
     </div>
 
-    <button @click="toggleDatepickers">Hide monthpickers</button>
+    <button @click="toggleDatepickers">Hide datepickers</button>
+    <button @click="toggleMonthpickers">Hide monthpickers</button>
+    <button @click="toggleYearpickers">Hide yearpickers</button>
     <button @click="toggleAlign">Toggle alignment</button>
     <button @click="toggleTrigger">Toggle trigger</button>
   </div>
@@ -211,8 +286,11 @@ export default {
     return {
       dateFormat: 'DD MMMM YYYY', //'D MMM',
       monthFormat: 'MMMM YYYY', //'D MMM',
-      inputDateOne: '',
+      yearFormat: 'YYYY',
+      inputDateOne: '2017-12-10',
       inputDateTwo: '',
+      yearDateOne: '',
+      yearDateTwo: '',
       inputSingleDateOne: '',
       buttonDateOne: '',
       buttonDateTwo: '',
@@ -220,10 +298,39 @@ export default {
       sundayFirst: false,
       alignRight: false,
       showDatepickers: true,
-      trigger: false
+      showYearpickers: true,
+      showMonthpickers: true,
+      trigger: false,
+      vModelButtons: ['', ''],
+      vModelInputs: ['', ''],
+      vModelSingleDate: ['', '']
     }
   },
-  computed: {},
+  computed: {
+
+    multipleDates: {
+      get() {
+        return [
+          this.inputDateOne,
+          this.inputDateTwo
+        ]
+      },
+      set(value) {
+        [this.inputDateOne, this.inputDateTwo] = value
+      }
+    },
+    singleYear: {
+      get() {
+        return [
+          this.yearDateOne,
+          this.yearDateTwo
+        ]
+      },
+      set(value) {
+        [this.yearDateOne, this.yearDateTwo] = value
+      }
+    }
+  },
   created() {
     // setTimeout(() => {
     //   this.inputDateOne = '2019-01-12'
@@ -234,23 +341,53 @@ export default {
     parse(date) {
       return parse(date)
     },
-    formatDates(dateOne, dateTwo) {
+    formatDates(Dates) {
       let formattedDates = ''
-      if (dateOne) {
-        formattedDates = format(dateOne, this.dateFormat, { locale: es })
-      }
-      if (dateTwo) {
-        formattedDates += ' - ' + format(dateTwo, this.dateFormat, { locale: es })
+      if (!Array.isArray(Dates)) {
+        if (Dates) formattedDates = format(Dates, this.dateFormat, { locale: es })
+      } else {
+        if (Dates[0]) {
+          formattedDates = format(Dates[0], this.dateFormat, { locale: es })
+        }
+        if (Dates[1]) {
+          formattedDates += ' - ' + format(Dates[1], this.dateFormat, { locale: es })
+        }
       }
       return formattedDates
     },
-    formatMonths(dateOne, dateTwo) {
+    formatMonths(Dates) {
       let formattedDates = ''
-      if (dateOne) {
-        formattedDates = format(dateOne, this.monthFormat, {locale: es})
+      if (Dates[0]) {
+        formattedDates = format(Dates[0], this.monthFormat, {locale: es})
       }
-      if (dateTwo) {
-        formattedDates += ' - ' + format(dateTwo, this.monthFormat, {locale: es})
+      if (Dates[1]) {
+        formattedDates += ' - ' + format(Dates[1], this.monthFormat, {locale: es})
+      }
+      return formattedDates
+    },
+
+    formatMonthsSingle(Dates) {
+      let formattedDates = ''
+      if (Dates[0]) {
+        formattedDates = format(Dates[0], this.monthFormat, {locale: es})
+      }
+      return formattedDates
+    },
+
+    formatYears(Dates) {
+      let formattedDates = ''
+      if (Dates[0]) {
+        formattedDates = format(Dates[0], this.yearFormat, {locale: es})
+      }
+      if (Dates[1]) {
+        formattedDates += ' - ' + format(Dates[1], this.yearFormat, {locale: es})
+      }
+      return formattedDates
+    },
+    formatYearsSingle(Dates) {
+      let formattedDates = ''
+      if (Dates[0]) {
+        formattedDates = format(Dates[0], this.yearFormat, {locale: es})
       }
       return formattedDates
     },
@@ -259,6 +396,12 @@ export default {
     },
     toggleDatepickers() {
       this.showDatepickers = !this.showDatepickers
+    },
+    toggleMonthpickers() {
+      this.showMonthpickers = !this.showMonthpickers
+    },
+    toggleYearpickers() {
+      this.showYearpickers = !this.showYearpickers
     },
     toggleTrigger() {
       this.trigger = !this.trigger
@@ -274,60 +417,60 @@ export default {
 }
 </script>
 
-<style lang="scss">
-html,
-body {
-  min-height: 200vh;
-  font-size: 14px;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-  Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  line-height: 18px;
-  font-weight: 400;
-  -webkit-font-smoothing: antialiased;
-  padding: 10px;
-}
-.app {
-  &.align-right {
-    text-align: right;
+  <style lang="scss">
+  html,
+  body {
+    min-height: 200vh;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    line-height: 18px;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    padding: 10px;
   }
-}
-h1 {
-  font-size: 1.8em;
-  line-height: 1.5em;
-}
-.monthpicker-container,.datepicker-container {
-  margin-bottom: 30px;
-}
+  .app {
+    &.align-right {
+      text-align: right;
+    }
+  }
+  h1 {
+    font-size: 1.8em;
+    line-height: 1.5em;
+  }
+  .monthpicker-container,.datepicker-container {
+    margin-bottom: 30px;
+  }
 
-#monthpicker-button-trigger,#datepicker-button-trigger {
-  background: #008489;
-  border: 1px solid #008489;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 15px;
-  font-weight: bold;
-  text-align: center;
-  min-width: 200px;
-}
-input {
-  padding: 6px 10px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-}
-.with-input {
-  .monthpicker-trigger,.datepicker-trigger {
-    //padding-right: 40px;
+  #datepicker-button-trigger,#monthpicker-button-trigger,#yearpicker-button-trigger {
+    background: #008489;
+    border: 1px solid #008489;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    min-width: 200px;
   }
-}
-.with-button {
-  .monthpicker-trigger,.datepicker-trigger {
-    //padding-left: 10px;
+  input {
+    padding: 6px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
   }
-}
-// .inline-with-input {
-  //   width: 600px;
-  //   input {
-    //     width: 100%;
-    //   }
-    // }
-</style>
+  .with-input {
+    .datepicker-trigger,.monthpicker-trigger,.yearpicker-trigger {
+      //padding-right: 40px;
+    }
+  }
+  .with-button {
+    .datepicker-trigger,.monthpicker-trigger,.yearpicker-trigger {
+      //padding-left: 10px;
+    }
+  }
+  // .inline-with-input {
+    //   width: 600px;
+    //   input {
+      //     width: 100%;
+      //   }
+      // }
+      </style>
