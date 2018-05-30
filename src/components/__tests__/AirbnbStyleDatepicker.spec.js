@@ -169,7 +169,7 @@ describe('AirbnbStyleDatepicker', () => {
       wrapper.setData({ showDatepicker: true })
 
       let dWrapper = wrapper.find(datepickerWrapper)
-      expect(dWrapper.element.style.width).toBe(wrapper.vm.width * 2 + 'px')
+      expect(dWrapper.element.style.width).toBe(wrapper.vm.datepickerWidth + 'px')
     })
     test('selected date get selected class', () => {
       wrapper = createDatePickerInstance({

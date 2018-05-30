@@ -187,7 +187,7 @@ describe('AirbnbStyleMonthpicker', () => {
       wrapper.setData({ showMonthpicker: true })
 
       let dWrapper = wrapper.find(monthpickerWrapper)
-      expect(dWrapper.element.style.width).toBe(wrapper.vm.width * 2 + 'px')
+      expect(dWrapper.element.style.width).toBe(wrapper.vm.monthpickerWidth + 'px')
     })
     test('selected month get selected class', () => {
       wrapper = createMonthPickerInstance({

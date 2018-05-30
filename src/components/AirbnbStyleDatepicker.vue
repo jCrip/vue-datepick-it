@@ -243,6 +243,9 @@ export default {
         this.selectedDate2 !== ''
       )
     },
+    noDatesSelected() {
+      return this.selectedDate1 === '' && this.selectedDate2 === ''
+    },
     hasMinDate() {
       return !!(this.minDate && this.minDate !== '')
     },
@@ -578,7 +581,7 @@ export default {
           }
         }
       }
-      if (this.allDatesSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
+      if (this.allDatesSelected || this.noDatesSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
     },
     setHoverDate(date) {
       this.hoverDate = date

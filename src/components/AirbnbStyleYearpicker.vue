@@ -76,19 +76,14 @@
 <script>
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
-import isSameMonth from 'date-fns/is_same_month'
-import lastDayOfMonth from 'date-fns/last_day_of_month'
-import startOfMonth from 'date-fns/start_of_month'
 import subYears from 'date-fns/sub_years'
 import addYears from 'date-fns/add_years'
-import setMonth from 'date-fns/set_month'
 import isBefore from 'date-fns/is_before'
 import isAfter from 'date-fns/is_after'
 import isSameYear from 'date-fns/is_same_year'
 import isValid from 'date-fns/is_valid'
 import startOfYear from 'date-fns/start_of_year'
 import endOfYear from 'date-fns/end_of_year'
-import isSameDay from 'date-fns/is_same_day'
 import { debounce, copyObject, findAncestor, randomString } from './../helpers'
 
 export default {
@@ -132,40 +127,11 @@ export default {
         inRangeBorder: '#33dacd',
         disabled: '#fff'
       },
-      monthNames: [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
-      ],
-      monthNamesShort: [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec'
-      ],
       texts: {
         apply: 'Apply',
         cancel: 'Cancel'
       },
       startingYear: '',
-      years: [],
       yearsWrappers: [],
       width: 340,
       selectedDate1: '',
@@ -226,12 +192,6 @@ export default {
     showFullscreen() {
       return this.isMobile && this.fullscreenMobile
     },
-    monthsSelected() {
-      return !!(
-        (this.selectedDate1 && this.selectedDate1 !== '') ||
-        (this.selectedDate2 && this.selectedDate2 !== '')
-      )
-    },
     allYearsSelected() {
       if (this.isSingleMode) {
         return !!(this.selectedDate1 &&
@@ -245,11 +205,14 @@ export default {
         !isSameYear(this.selectedDate2, this.selectedDate1)
       )
     },
-    hasMinDate() {
-      return !!(this.minYear && this.minYear !== '')
+    noYearsSelected() {
+      return this.selectedDate1 === '' && this.selectedDate2 === ''
     },
     hasMinYear() {
       return !!(this.minYear && this.minYear !== '')
+    },
+    hasMaxYear() {
+      return !!(this.maxYear && this.maxYear !== '')
     },
     isRangeMode() {
       return this.mode === 'range'
@@ -257,50 +220,19 @@ export default {
     isSingleMode() {
       return this.mode === 'single'
     },
-    monthpickerWidth() {
+    yearpickerWidth() {
       return this.width * this.showYears
     },
-    datePropsCompound() {
-      // used to watch for changes in props, and update GUI accordingly
-      return this.dateOne + this.dateTwo
-    },
     isDateTwoBeforeDateOne() {
-      if (!this.dateTwo) {
+      if (!this.yearTwo) {
         return false
       }
-      return isBefore(this.dateTwo, this.dateOne)
+      return isBefore(this.yearTwo, this.yearOne)
     }
   },
   watch: {
-    selectedDate1(newValue, oldValue) {
-      let newDate =
-        !newValue || newValue === '' ? '' : format(newValue, this.yearFormat)
-      this.$emit('date-one-selected', newDate)
-    },
-    selectedDate2(newValue, oldValue) {
-      let newDate =
-        !newValue || newValue === '' ? '' : format(newValue, this.yearFormat)
-      this.$emit('date-two-selected', newDate)
-    },
     mode(newValue, oldValue) {
       this.setStartYears()
-    },
-    datePropsCompound(newValue) {
-      if (this.dateOne !== this.selectedDate1) {
-        this.startingYear = this.dateOne
-        // this.setStartYears()
-
-        this.generateYearsWrappers()
-      }
-      if (this.isDateTwoBeforeDateOne) {
-        this.selectedDate2 = ''
-        this.$emit('date-two-selected', '')
-      }
-    },
-    trigger(newValue, oldValue) {
-      if (newValue) {
-        this.openYearpicker()
-      }
     }
   },
   created() {
@@ -341,9 +273,6 @@ export default {
   methods: {
     isSelectedYear(year) {
       return isSameYear(this.selectedDate1, year.firstDay) || isSameYear(this.selectedDate2, year.firstDay)
-    },
-    isSameMonth(month1, month2) {
-      return isSameMonth(month1, month2)
     },
     getYearsWrapperStyles(year) {
       const isSelected = this.isSelectedYear(year)
@@ -472,15 +401,6 @@ export default {
         lastDay: endOfYear(parse(year.toString()))
       }
     },
-    getMonthData(monthNumber, date) {
-      return {
-        shortName: this.monthNamesShort[monthNumber],
-        name: this.monthNames[monthNumber],
-        firstDay: startOfMonth(setMonth(date, monthNumber)),
-        lastDay: lastDayOfMonth(setMonth(date, monthNumber)),
-        key: format(startOfMonth(setMonth(date, monthNumber)), 'YYYY-MM')
-      }
-    },
     setupYearpicker() {
       if (this.$options.colors) {
         const colors = copyObject(this.$options.colors)
@@ -517,7 +437,7 @@ export default {
       } else {
         startDate = startOfYear(new Date())
       }
-      if (this.hasMinDate && isBefore(startDate, this.minYear)) {
+      if (this.hasMinYear && isBefore(startDate, this.minYear)) {
         startDate = startOfYear(this.minYear)
       }
       this.startYearOfActualWrapper = this.getInitialWrapperDate(parse(startDate))
@@ -557,7 +477,7 @@ export default {
         this.closeYearpicker()
         return
       }
-      if (isSameDay(this.selectedDate1, year.firstDay)) {
+      if (isSameYear(this.selectedDate1, year.firstDay)) {
         this.selectedDate1 = ''
         this.selectedDate2 = ''
         this.isSelectingDate1 = true
@@ -578,7 +498,7 @@ export default {
           }
         }
       }
-      if (this.allYearsSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
+      if (this.allYearsSelected || this.noYearsSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
     },
     setHoverYear(year) {
       this.hoverYear = year
@@ -667,8 +587,8 @@ export default {
     },
     apply() {
       const datesSelected = {
-        dateOne: this.selectedDate1,
-        dateTwo: this.selectedDate2
+        yearOne: this.selectedDate1,
+        yearTwo: this.selectedDate2
       }
       this.$emit('apply', datesSelected)
       this.closeYearpicker()

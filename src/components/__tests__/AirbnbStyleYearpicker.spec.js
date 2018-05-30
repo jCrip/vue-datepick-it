@@ -203,7 +203,7 @@ describe('AirbnbStyleYearpicker', () => {
       wrapper.setData({ showYearpicker: true })
 
       let dWrapper = wrapper.find(yearpickerWrapper)
-      expect(dWrapper.element.style.width).toBe(wrapper.vm.width * 2 + 'px')
+      expect(dWrapper.element.style.width).toBe(wrapper.vm.yearpickerWidth + 'px')
     })
     test('selected year get selected class', () => {
       wrapper = createYearPickerInstance({

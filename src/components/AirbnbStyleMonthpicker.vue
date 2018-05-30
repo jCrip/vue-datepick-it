@@ -101,7 +101,6 @@ import setMonth from 'date-fns/set_month'
 import isBefore from 'date-fns/is_before'
 import isAfter from 'date-fns/is_after'
 import isValid from 'date-fns/is_valid'
-import isSameDay from 'date-fns/is_same_day'
 import { debounce, copyObject, findAncestor, randomString } from './../helpers'
 
 export default {
@@ -249,11 +248,17 @@ export default {
         !isSameMonth(this.selectedDate2, this.selectedDate1)
       )
     },
+    noMonthsSelected() {
+      return this.selectedDate1 === '' && this.selectedDate2 === ''
+    },
     hasMinMonth() {
       return !!(this.minMonth && this.minMonth !== '')
     },
     isSingleMode() {
       return this.mode === 'single'
+    },
+    monthpickerWidth() {
+      return this.width * this.showYears
     }
   },
   watch: {
@@ -512,7 +517,7 @@ export default {
         this.selectedDate2 = month.lastDay
         this.closeMonthpicker()
       } else {
-        if (isSameDay(this.selectedDate1, month.firstDay)) {
+        if (isSameMonth(this.selectedDate1, month.firstDay)) {
           this.selectedDate1 = ''
           this.selectedDate2 = ''
           this.isSelectingDate1 = true
@@ -534,7 +539,7 @@ export default {
           }
         }
       }
-      if (this.allMonthsSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
+      if (this.allMonthsSelected || this.noMonthsSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
     },
     setHoverMonth(month) {
       this.hoverMonth = month.firstDay
