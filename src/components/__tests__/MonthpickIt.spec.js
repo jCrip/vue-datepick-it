@@ -1,5 +1,5 @@
 import { shallow, createLocalVue } from '@vue/test-utils'
-import AirbnbStyleMonthpicker from '@/components/AirbnbStyleMonthpicker'
+import MonthpickIt from '@/components/MonthpickIt'
 import ClickOutside from '@/directives/ClickOutside'
 import TestHelpers from 'test/test-helpers'
 import parse from 'date-fns/parse'
@@ -11,7 +11,7 @@ import isSameMonth from 'date-fns/is_same_month'
 const localVue = createLocalVue()
 localVue.directive('click-outside', ClickOutside)
 
-const createMonthPickerInstance = (propsData, options) => {
+const createMonthPickItInstance = (propsData, options) => {
   let h
 
   if (!propsData) {
@@ -24,7 +24,7 @@ const createMonthPickerInstance = (propsData, options) => {
     options = {}
   }
   const component = {
-    ...AirbnbStyleMonthpicker,
+    ...MonthpickIt,
     ...options
   }
   const wrapper = shallow(component, {
@@ -37,7 +37,7 @@ const createMonthPickerInstance = (propsData, options) => {
 const monthpickerWrapper = '.asd__wrapper'
 let wrapper
 
-describe('AirbnbStyleMonthpicker', () => {
+describe('MonthpickIt', () => {
   beforeEach(() => {
     jest.resetModules()
     jest.clearAllMocks()
@@ -45,18 +45,18 @@ describe('AirbnbStyleMonthpicker', () => {
 
   describe('lifecycle hooks', () => {
     test('creates correct amount of years', () => {
-      wrapper = createMonthPickerInstance()
+      wrapper = createMonthPickItInstance()
       expect(wrapper.vm.years.length).toEqual(wrapper.props().yearsToShow + 2)
     })
     test('dates are set when initial values are passed', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         value: ['Enero 2015', 'Febrero 2016']
       })
       expect(wrapper.vm.selectedDate1).toEqual(startOfMonth(parse(wrapper.props().value[0])))
       expect(wrapper.vm.selectedDate2).toEqual(lastDayOfMonth(parse(wrapper.props().value[1])))
     })
     test('dates are set when is single Mode and only one month is passed', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         mode: 'single',
         value: ['Enero 2015', '']
       })
@@ -64,7 +64,7 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(wrapper.vm.selectedDate2).toEqual(lastDayOfMonth(parse(wrapper.props().value[0])))
     })
     test('dates are set when is single Mode and only one month is passed', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         mode: 'single',
         value: 'Enero 2015'
       })
@@ -75,14 +75,14 @@ describe('AirbnbStyleMonthpicker', () => {
 
   describe('computed', () => {
     test('allMonthsSelected() works', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         mode: 'range',
         value: [ '', '']
       })
       expect(wrapper.vm.allMonthsSelected).toEqual(false)
     })
     test('allMonthsSelected() works', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         mode: 'single',
         value: ['Febrero 2016', '']
       })
@@ -92,7 +92,7 @@ describe('AirbnbStyleMonthpicker', () => {
 
   describe('methods', () => {
     test('getYear() returns correct values', () => {
-      const wrapper = createMonthPickerInstance()
+      const wrapper = createMonthPickItInstance()
       let year = wrapper.vm.getYear(new Date('2017-12-01'))
       expect(year.name).toBe(2017)
       expect(year.months.length).toBeGreaterThan(0)
@@ -102,12 +102,12 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(months.length).toEqual(12)
     })
     test('setHoverMonth() sets correct value', () => {
-      const wrapper = createMonthPickerInstance()
+      const wrapper = createMonthPickItInstance()
       wrapper.vm.setHoverMonth(wrapper.vm.getMonths('2017-12-01')[0])
       expect(format(wrapper.vm.hoverMonth, 'YYYY-MM-DD')).toBe(format(parse('2017-01-01'), 'YYYY-MM-DD'))
     })
     test('isSelected() works', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         mode: 'single',
         value: ['Enero 2018', '']
       })
@@ -136,7 +136,7 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(wrapper.vm.showMonthpicker).toBe(false)
     })
     test('month is in range', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         value: ['January 2018', 'April 2018']
       })
       expect(wrapper.vm.isInRange(wrapper.vm.years[2].months[6])).toBe(false)
@@ -144,7 +144,7 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(wrapper.vm.isInRange(wrapper.vm.years[1].months[1])).toBe(true)
     })
     test('event is emitted when selecting month', () => {
-      wrapper = createMonthPickerInstance()
+      wrapper = createMonthPickItInstance()
       const monthOne = wrapper.vm.years[2].months[7]
       const monthTwo = wrapper.vm.years[3].months[5]
       wrapper.vm.selectMonth(monthOne)
@@ -156,12 +156,12 @@ describe('AirbnbStyleMonthpicker', () => {
       })
     })
     test('year of minMonth is shown first', () => {
-      wrapper = createMonthPickerInstance({ minMonth: 'May 2020' })
+      wrapper = createMonthPickItInstance({ minMonth: 'May 2020' })
       const firstVisibleYear = wrapper.vm.years[1]
       expect(firstVisibleYear.name).toBe(2020)
     })
     test('emits closed event on monthpicker close', () => {
-      wrapper = createMonthPickerInstance()
+      wrapper = createMonthPickItInstance()
       wrapper.setData({ triggerElement: document.createElement('div') })
       wrapper.vm.closeMonthpicker()
       wrapper.vm.$nextTick(function() {
@@ -172,7 +172,7 @@ describe('AirbnbStyleMonthpicker', () => {
 
   describe('gui', () => {
     test('Year shows year title', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         value: ['January 2018', 'June 2018']
       })
       wrapper.setData({ showMonthpicker: true })
@@ -181,7 +181,7 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(wrapper.find('.asd__year-name').text()).toContain('2017')
     })
     test('monthpicker wrapper is correct width', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         yearsToShow: 2
       })
       wrapper.setData({ showMonthpicker: true })
@@ -190,7 +190,7 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(dWrapper.element.style.width).toBe(wrapper.vm.monthpickerWidth + 'px')
     })
     test('selected month get selected class', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         value: ['January 2018', 'May 2018']
       })
       wrapper.setData({ showMonthpicker: true })
@@ -200,7 +200,7 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(wrapper.findAll('.asd__month-item--in-range').length).toBe(3)
     })
     test('is fullscreen on mobile', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         fullscreenMobile: true,
         monthsToShow: 2
       })
@@ -212,7 +212,7 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(dWrapper.classes()).toContain('asd__wrapper--full-screen')
     })
     test('disabled months are not selectable', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         mode: 'single',
         value: ['January 2018', ''],
         disabledMonths: ['March 2018']
@@ -225,7 +225,7 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(wrapper.vm.selectedDate1).toEqual(startOfMonth(parse('2018-01')))
     })
     test('month are set if user types a valid date in input', () => {
-      wrapper = createMonthPickerInstance({
+      wrapper = createMonthPickItInstance({
         mode: 'single',
         value: ['January 2018', '']
       })
@@ -234,7 +234,7 @@ describe('AirbnbStyleMonthpicker', () => {
       expect(parse(wrapper.vm.selectedDate1)).toEqual(parse('2018-01'))
     })
   //   // test('opens monthpicker on focus', () => {
-  //   //   wrapper = createMonthPickerInstance({
+  //   //   wrapper = createMonthPickItInstance({
   //   //     mode: 'single',
   //   //     dateOne: '',
   //   //     openOnFocus: true

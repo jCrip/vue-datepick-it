@@ -1,5 +1,5 @@
 import { shallow, createLocalVue } from '@vue/test-utils'
-import AirbnbStyleDatepicker from '@/components/AirbnbStyleDatepicker'
+import DatepickIt from '@/components/DatepickIt'
 import ClickOutside from '@/directives/ClickOutside'
 import TestHelpers from 'test/test-helpers'
 import parse from 'date-fns/parse'
@@ -7,7 +7,7 @@ let h
 
 const localVue = createLocalVue()
 localVue.directive('click-outside', ClickOutside)
-const createDatePickerInstance = (propsData, options) => {
+const createDatePickItInstance = (propsData, options) => {
   if (!propsData) {
     propsData = {
       value: ['2018-01-10', '2018-01-13'],
@@ -18,7 +18,7 @@ const createDatePickerInstance = (propsData, options) => {
     options = {}
   }
   const component = {
-    ...AirbnbStyleDatepicker,
+    ...DatepickIt,
     ...options
   }
   const wrapper = shallow(component, {
@@ -31,7 +31,7 @@ const createDatePickerInstance = (propsData, options) => {
 const datepickerWrapper = '.asd__wrapper'
 let wrapper
 
-describe('AirbnbStyleDatepicker', () => {
+describe('DatepickIt', () => {
   beforeEach(() => {
     jest.resetModules()
     jest.clearAllMocks()
@@ -39,11 +39,11 @@ describe('AirbnbStyleDatepicker', () => {
 
   describe('lifecycle hooks', () => {
     test('creates correct amount of months', () => {
-      wrapper = createDatePickerInstance()
+      wrapper = createDatePickItInstance()
       expect(wrapper.vm.months.length).toEqual(wrapper.props().monthsToShow + 2)
     })
     test('dates are set when initial values are passed', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         value: ['2018-01-10', '2018-01-13']
       })
       expect(wrapper.vm.selectedDate1).toEqual(wrapper.props().value[0])
@@ -51,21 +51,21 @@ describe('AirbnbStyleDatepicker', () => {
     })
 
     test('sunday is first day, if specified', () => {
-      wrapper = createDatePickerInstance(null, { sundayFirst: true })
+      wrapper = createDatePickItInstance(null, { sundayFirst: true })
       expect(wrapper.vm.days[0]).toBe('Sunday')
     })
   })
 
   describe('computed', () => {
     test('datesSelected() works', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         mode: 'range',
         value: '2018-01-10'
       })
       expect(wrapper.vm.datesSelected).toEqual(true)
     })
     test('allDatesSelected() works', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         mode: 'range',
         value: ['2018-01-10', '']
       })
@@ -84,12 +84,12 @@ describe('AirbnbStyleDatepicker', () => {
       expect(weeks.length).toEqual(5)
     })
     test('setHoverDate() sets correct value', () => {
-      const wrapper = createDatePickerInstance()
+      const wrapper = createDatePickItInstance()
       wrapper.vm.setHoverDate('2017-12-12')
       expect(wrapper.vm.hoverDate).toBe('2017-12-12')
     })
     test('isSelected() works', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         mode: 'single',
         value: '2018-01-10'
       })
@@ -117,14 +117,14 @@ describe('AirbnbStyleDatepicker', () => {
       expect(wrapper.vm.showDatepicker).toBe(false)
     })
     test('date is in range', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         value: ['2018-02-20', '2018-02-26']
       })
       expect(wrapper.vm.isInRange('2018-03-22')).toBe(false)
       expect(wrapper.vm.isInRange('2018-02-22')).toBe(true)
     })
     test('event is emitted when selecting date', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         mode: 'range',
         value: ['', '']
       })
@@ -137,12 +137,12 @@ describe('AirbnbStyleDatepicker', () => {
       })
     })
     test('month of minDate is shown first', () => {
-      wrapper = createDatePickerInstance({ minDate: '2018-06-14', value: ['', ''] })
+      wrapper = createDatePickItInstance({ minDate: '2018-06-14', value: ['', ''] })
       const firstVisibleMonth = wrapper.vm.months[0]
       expect(firstVisibleMonth.monthNumber).toBe(5)
     })
     test('emits closed event on datepicker close', () => {
-      wrapper = createDatePickerInstance()
+      wrapper = createDatePickItInstance()
       wrapper.setData({ triggerElement: document.createElement('div') })
       wrapper.vm.closeDatepicker()
       wrapper.vm.$nextTick(function() {
@@ -153,7 +153,7 @@ describe('AirbnbStyleDatepicker', () => {
 
   describe('gui', () => {
     test('months shows month and year', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         value: ['2018-02-20', '2018-02-26']
       })
       wrapper.setData({ showDatepicker: true })
@@ -162,7 +162,7 @@ describe('AirbnbStyleDatepicker', () => {
       expect(wrapper.find('.asd__month-name').text()).toContain('January 2018')
     })
     test('datepicker wrapper is correct width', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         value: ['2018-02-20', '2018-02-26'],
         monthsToShow: 2
       })
@@ -172,7 +172,7 @@ describe('AirbnbStyleDatepicker', () => {
       expect(dWrapper.element.style.width).toBe(wrapper.vm.datepickerWidth + 'px')
     })
     test('selected date get selected class', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         value: ['2017-12-10', '2017-12-15']
       })
       wrapper.setData({ showDatepicker: true })
@@ -183,7 +183,7 @@ describe('AirbnbStyleDatepicker', () => {
       expect(wrapper.findAll('.asd__day--in-range').length).toBe(4)
     })
     test('is fullscreen on mobile', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         value: ['2017-12-10', '2017-12-15'],
         fullscreenMobile: true,
         monthsToShow: 2
@@ -196,7 +196,7 @@ describe('AirbnbStyleDatepicker', () => {
       expect(dWrapper.classes()).toContain('asd__wrapper--full-screen')
     })
     test('disabled dates are not selectable', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         mode: 'single',
         value: '2018-10-10',
         disabledDates: ['2018-10-20'],
@@ -213,7 +213,7 @@ describe('AirbnbStyleDatepicker', () => {
       ])
     })
     test('date are set if user types a valid date in input', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         mode: 'single',
         value: '',
         disabledDates: ['2018-10-20']
@@ -232,7 +232,7 @@ describe('AirbnbStyleDatepicker', () => {
       expect(wrapper.vm.selectedDate1).not.toEqual('2018-10-32')
     })
     test('opens datepicker on focus', () => {
-      wrapper = createDatePickerInstance({
+      wrapper = createDatePickItInstance({
         mode: 'single',
         value: '',
         openOnFocus: true

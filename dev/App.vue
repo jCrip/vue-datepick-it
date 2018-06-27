@@ -10,7 +10,7 @@
             :value="formatDates(multipleDates)"
             placeholder="Select dates"
           >
-          <airbnb-style-datepicker
+          <datepick-it
             :trigger-element-id="'datepicker-input-trigger'"
             :mode="'range'"
             v-model="multipleDates"
@@ -34,7 +34,7 @@
             placeholder="Select dates"
           >
 
-          <airbnb-style-datepicker
+          <datepick-it
             :trigger-element-id="'datepicker-input-single-trigger'"
             :mode="'single'"
             v-model="inputDateOne"
@@ -50,7 +50,7 @@
         <div class="datepicker-trigger">
           <button id="datepicker-button-trigger">{{ formatDates(multipleDates) || 'Select dates' }}</button>
 
-          <airbnb-style-datepicker
+          <datepick-it
             :trigger-element-id="'datepicker-button-trigger'"
             :mode="'range'"
             v-model="multipleDates"
@@ -73,7 +73,7 @@
           type="text"
           placeholder="Select date"
         >
-        <airbnb-style-datepicker
+        <datepick-it
           :trigger-element-id="'datepicker-inline-trigger'"
           v-model="inputDateOne"
           :mode="'single'"
@@ -98,7 +98,7 @@
             placeholder="Select dates"
           >
 
-          <airbnb-style-monthpicker
+          <monthpick-it
             :trigger-element-id="'monthpicker-input-trigger'"
             v-model="multipleDates"
             :mode="'range'"
@@ -121,7 +121,7 @@
             placeholder="Select dates"
           >
 
-          <airbnb-style-monthpicker
+          <monthpick-it
             :trigger-element-id="'monthpicker-input-single-trigger'"
             v-model="multipleDates"
 
@@ -138,7 +138,7 @@
         <div class="monthpicker-trigger">
           <button id="monthpicker-button-trigger">{{ formatMonths(multipleDates) || 'Select dates' }}</button>
 
-          <airbnb-style-monthpicker
+          <monthpick-it
             v-model="multipleDates"
 
             :max-month="parse('2018-12')"
@@ -163,7 +163,7 @@
           type="text"
           placeholder="Select date"
         >
-        <airbnb-style-monthpicker
+        <monthpick-it
           :trigger-element-id="'monthpicker-inline-trigger'"
           v-model="multipleDates"
           :min-date="parse('2018-04')"
@@ -188,7 +188,7 @@
             placeholder="Select dates"
           >
 
-          <airbnb-style-yearpicker
+          <yearpick-it
             :trigger-element-id="'yearpicker-input-trigger'"
             v-model="multipleDates"
             :mode="'range'"
@@ -211,7 +211,7 @@
             placeholder="Select Years"
           >
 
-          <airbnb-style-yearpicker
+          <yearpick-it
             :trigger-element-id="'yearpicker-input-single-trigger'"
             v-model="singleYear"
 
@@ -228,7 +228,7 @@
         <div class="yearpicker-trigger">
           <button id="yearpicker-button-trigger">{{ formatYears(multipleDates) || 'Select Years' }}</button>
 
-          <airbnb-style-yearpicker
+          <yearpick-it
             v-model="multipleDates"
 
             :max-month="parse('2018-12')"
@@ -253,7 +253,7 @@
           type="text"
           placeholder="Select date"
         >
-        <airbnb-style-yearpicker
+        <yearpick-it
           :trigger-element-id="'yearpicker-inline-trigger'"
           v-model="singleYear"
           :min-date="parse('2018-04')"
