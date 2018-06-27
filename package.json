@@ -1,12 +1,12 @@
 {
-  "name": "vue-airbnb-style-datepicker-monthpicker",
+  "name": "date-pick-it",
   "version": "1.8.0",
   "description": "A VueJs version of the popular AirBnb datepicker-monthpicker",
-  "main": "dist/vue-airbnb-style-datepicker-monthpicker.cjs.js",
-  "module": "dist/vue-airbnb-style-datepicker-monthpicker.es.js",
-  "unpkg": "dist/vue-airbnb-style-datepicker-monthpicker.js",
+  "main": "dist/date-pick-it.cjs.js",
+  "module": "dist/date-pick-it.es.js",
+  "unpkg": "dist/date-pick-it.js",
   "repository": {
-    "url": "MikaelEdebro/vue-airbnb-style-datepicker",
+    "url": "jCrip/vue-airbnb-style-datepicker",
     "type": "git"
   },
   "files": [

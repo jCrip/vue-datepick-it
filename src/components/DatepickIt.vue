@@ -101,7 +101,7 @@ import isSameDay from 'date-fns/is_same_day'
 import { debounce, copyObject, findAncestor, randomString } from './../helpers'
 
 export default {
-  name: 'AirbnbStyleDatepicker',
+  name: 'DatepickIt',
   props: {
     triggerElementId: { type: String },
     minDate: { type: [String, Date] },
@@ -582,6 +582,7 @@ export default {
         }
       }
       if (this.allDatesSelected || this.noDatesSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
+        if(this.allDatesSelected && !this.showActionButtons) this.closeDatepicker()
     },
     setHoverDate(date) {
       this.hoverDate = date

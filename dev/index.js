@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import App from './App.vue'
-import { AirbnbStyleDatepicker, AirbnbStyleMonthpicker, AirbnbStyleYearpicker } from './../src/index'
+import { DatepickIt, MonthpickIt, YearpickIt } from './../src/index'
 
-Vue.use(AirbnbStyleDatepicker, {
+Vue.use(DatepickIt, {
   sundayFirst: false,
   days: ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'],
   daysShort: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
@@ -34,7 +34,7 @@ Vue.use(AirbnbStyleDatepicker, {
   }
 })
 
-Vue.use(AirbnbStyleMonthpicker, {
+Vue.use(MonthpickIt, {
   monthNames: [
     'Enero',
     'Febrero',
@@ -64,7 +64,7 @@ Vue.use(AirbnbStyleMonthpicker, {
     'Dec'
   ]
 })
-Vue.use(AirbnbStyleYearpicker)
+Vue.use(YearpickIt)
 // eslint-disable-next-line
 new Vue({
   el: '#app',

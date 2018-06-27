@@ -1,5 +1,5 @@
 import { shallow, createLocalVue } from '@vue/test-utils'
-import AirbnbStyleYearpicker from '@/components/AirbnbStyleYearpicker'
+import YearpickIt from '@/components/YearpickIt'
 import ClickOutside from '@/directives/ClickOutside'
 import TestHelpers from 'test/test-helpers'
 import parse from 'date-fns/parse'
@@ -11,7 +11,7 @@ import isSameMonth from 'date-fns/is_same_month'
 const localVue = createLocalVue()
 localVue.directive('click-outside', ClickOutside)
 
-const createYearPickerInstance = (propsData, options) => {
+const createYearPickItInstance = (propsData, options) => {
   let h
 
   if (!propsData) {
@@ -24,7 +24,7 @@ const createYearPickerInstance = (propsData, options) => {
     options = {}
   }
   const component = {
-    ...AirbnbStyleYearpicker,
+    ...YearpickIt,
     ...options
   }
   const wrapper = shallow(component, {
@@ -37,7 +37,7 @@ const createYearPickerInstance = (propsData, options) => {
 const yearpickerWrapper = '.asd__wrapper'
 let wrapper
 
-describe('AirbnbStyleYearpicker', () => {
+describe('YearpickIt', () => {
   beforeEach(() => {
     jest.resetModules()
     jest.clearAllMocks()
@@ -45,18 +45,18 @@ describe('AirbnbStyleYearpicker', () => {
 
   describe('lifecycle hooks', () => {
     test('creates correct amount of years', () => {
-      wrapper = createYearPickerInstance()
+      wrapper = createYearPickItInstance()
       expect(wrapper.vm.yearsWrappers.length).toEqual(wrapper.props().yearsWrappersToShow + 2)
     })
     test('dates are set when initial values are passed', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         value: [parse('2015'), parse('2016')]
       })
       expect(wrapper.vm.selectedDate1).toEqual(startOfYear(parse(wrapper.props().value[0])))
       expect(wrapper.vm.selectedDate2).toEqual(endOfYear(parse(wrapper.props().value[1])))
     })
     test('dates are set when is single Mode and only one month is passed', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         mode: 'single',
         value: [parse('2015'), '']
       })
@@ -64,7 +64,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(wrapper.vm.selectedDate2).toEqual(endOfYear(parse(wrapper.props().value[0])))
     })
     test('dates are set when is single Mode and only one month is passed', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         mode: 'single',
         value: '2015'
       })
@@ -75,14 +75,14 @@ describe('AirbnbStyleYearpicker', () => {
 
   describe('computed', () => {
     test('allYearsSelected() works', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         mode: 'range',
         value: [ '', '' ]
       })
       expect(wrapper.vm.allYearsSelected).toEqual(false)
     })
     test('allYearsSelected() works', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         mode: 'single',
         value: 'February 2016'
       })
@@ -92,7 +92,7 @@ describe('AirbnbStyleYearpicker', () => {
 
   describe('methods', () => {
     test('getYearData() returns correct values', () => {
-      const wrapper = createYearPickerInstance()
+      const wrapper = createYearPickItInstance()
       let year = wrapper.vm.getYearData('2015')
       expect(year.name).toBe('2015')
       expect(year.firstDay).toEqual(parse('2015-01-01'))
@@ -103,13 +103,13 @@ describe('AirbnbStyleYearpicker', () => {
       expect(years.years.length).toEqual(9)
     })
     test('setHoverMonth() sets correct value', () => {
-      const wrapper = createYearPickerInstance()
+      const wrapper = createYearPickItInstance()
       let yearToSelect = wrapper.vm.getYearWrapper(parse('2017')).years[0]
       wrapper.vm.setHoverYear(yearToSelect)
       expect(yearToSelect).toBe(wrapper.vm.hoverYear)
     })
     test('isSelectedYear() works', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         mode: 'single',
         value: '2018 '
       })
@@ -141,7 +141,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(wrapper.vm.showYearpicker).toBe(false)
     })
     test('year is in range', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         value: ['2014', '2020']
       })
       expect(wrapper.vm.isInRange(wrapper.vm.yearsWrappers[2].years[6])).toBe(false)
@@ -149,7 +149,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(wrapper.vm.isInRange(wrapper.vm.yearsWrappers[1].years[5])).toBe(true)
     })
     test('event is emitted when selecting year', () => {
-      wrapper = createYearPickerInstance()
+      wrapper = createYearPickItInstance()
       const yearOne = wrapper.vm.yearsWrappers[2].years[7]
       const yearTwo = wrapper.vm.yearsWrappers[3].years[5]
       wrapper.vm.selectYear(yearOne)
@@ -162,7 +162,7 @@ describe('AirbnbStyleYearpicker', () => {
     })
     test('year of minMonth is shown first', () => {
       const minYearToTest = 2020
-      wrapper = createYearPickerInstance({ minYear: minYearToTest.toString() })
+      wrapper = createYearPickItInstance({ minYear: minYearToTest.toString() })
       const yearsInWrapper = wrapper.vm.yearsInWrapper
       const minYearInsideWrapper = minYearToTest - (Math.floor(yearsInWrapper / 2))
       const maxYearInsideWrapper = minYearToTest + (Math.floor(yearsInWrapper / 2))
@@ -171,7 +171,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(firstVisibleYear.name).toBe(label)
     })
     test('emits closed event on monthpicker close', () => {
-      wrapper = createYearPickerInstance()
+      wrapper = createYearPickItInstance()
       wrapper.setData({ triggerElement: document.createElement('div') })
       wrapper.vm.closeYearpicker()
       wrapper.vm.$nextTick(function() {
@@ -184,7 +184,7 @@ describe('AirbnbStyleYearpicker', () => {
     test('YearWrapper shows year title', () => {
       const initialYear = 2018
       const finalYear = 2020
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         value: [initialYear.toString(), finalYear.toString()]
       })
       wrapper.setData({ showYearpicker: true })
@@ -197,7 +197,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(wrapper.findAll('.asd__year-wrapper-name').wrappers[1].text()).toContain(label)
     })
     test('yearpicker wrapper is correct width', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         yearsWrappersToShow: 2
       })
       wrapper.setData({ showYearpicker: true })
@@ -206,7 +206,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(dWrapper.element.style.width).toBe(wrapper.vm.yearpickerWidth + 'px')
     })
     test('selected year get selected class', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         value: ['2018', '2022']
       })
       wrapper.setData({ showYearpicker: true })
@@ -216,7 +216,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(wrapper.findAll('.asd__year-item--in-range').length).toBe(3)
     })
     test('is fullscreen on mobile', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         fullscreenMobile: true,
         yearsWrappersToShow: 2
       })
@@ -228,7 +228,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(dWrapper.classes()).toContain('asd__wrapper--full-screen')
     })
     test('disabled years are not selectable', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         mode: 'single',
         value: '2019',
         disabledYears: [parse('2018')]
@@ -241,7 +241,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(wrapper.vm.selectedDate1).toEqual(startOfYear(parse('2019')))
     })
     test('year are set if user types a valid year in input', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         mode: 'single',
         value: ['2018', '2020']
       })
@@ -250,7 +250,7 @@ describe('AirbnbStyleYearpicker', () => {
       expect(parse(wrapper.vm.selectedDate1)).toEqual(startOfYear('2024'))
     })
     test('opens yearpicker on focus', () => {
-      wrapper = createYearPickerInstance({
+      wrapper = createYearPickItInstance({
         mode: 'single',
         value: ['', ''],
         openOnFocus: true
