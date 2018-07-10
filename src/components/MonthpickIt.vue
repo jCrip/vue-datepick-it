@@ -515,7 +515,9 @@ export default {
       if (this.mode === 'single') {
         this.selectedDate1 = month.firstDay
         this.selectedDate2 = month.lastDay
-        this.closeMonthpicker()
+        this.$emit('input', [this.selectedDate1, this.selectedDate2])
+        this.apply()
+        return
       } else {
         if (isSameMonth(this.selectedDate1, month.firstDay)) {
           this.selectedDate1 = ''
@@ -540,7 +542,7 @@ export default {
         }
       }
       if (this.allMonthsSelected || this.noMonthsSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
-        if(this.allMonthsSelected && !this.showActionButtons) this.closeMonthpicker()
+      if (this.allMonthsSelected && !this.showActionButtons) this.closeMonthpicker()
     },
     setHoverMonth(month) {
       this.hoverMonth = month.firstDay

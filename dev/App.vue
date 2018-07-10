@@ -268,9 +268,9 @@
       </div>
     </div>
 
-    <button @click="toggleDatepickers">Hide datepickers</button>
-    <button @click="toggleMonthpickers">Hide monthpickers</button>
-    <button @click="toggleYearpickers">Hide yearpickers</button>
+    <button @click="toggleDatepickers">{{ showDatepickers ? 'Hide': 'show' }} datepickers</button>
+    <button @click="toggleMonthpickers">{{ showMonthpickers ? 'Hide': 'show' }} monthpickers</button>
+    <button @click="toggleYearpickers">{{ showYearpickers ? 'Hide': 'show' }} yearpickers</button>
     <button @click="toggleAlign">Toggle alignment</button>
     <button @click="toggleTrigger">Toggle trigger</button>
   </div>
