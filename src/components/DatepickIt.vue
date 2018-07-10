@@ -554,10 +554,10 @@ export default {
         return
       }
 
-      if (this.mode === 'single') {
+      if (this.isSingleMode) {
         this.selectedDate1 = date
         this.$emit('input', this.selectedDate1)
-        this.closeDatepicker()
+        this.apply()
         return
       }
 
@@ -582,7 +582,7 @@ export default {
         }
       }
       if (this.allDatesSelected || this.noDatesSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
-        if(this.allDatesSelected && !this.showActionButtons) this.closeDatepicker()
+      if (this.allDatesSelected && !this.showActionButtons) this.closeDatepicker()
     },
     setHoverDate(date) {
       this.hoverDate = date

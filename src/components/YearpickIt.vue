@@ -474,7 +474,7 @@ export default {
         this.selectedDate1 = year.firstDay
         this.selectedDate2 = year.lastDay
         this.$emit('input', [this.selectedDate1, this.selectedDate2])
-        this.closeYearpicker()
+        this.apply()
         return
       }
       if (isSameYear(this.selectedDate1, year.firstDay)) {
@@ -499,7 +499,7 @@ export default {
         }
       }
       if (this.allYearsSelected || this.noYearsSelected) this.$emit('input', [this.selectedDate1, this.selectedDate2])
-      if(this.allYearsSelected && !this.showActionButtons) this.closeYearpicker()
+      if (this.allYearsSelected && !this.showActionButtons) this.closeYearpicker()
     },
     setHoverYear(year) {
       this.hoverYear = year
