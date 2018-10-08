@@ -244,8 +244,7 @@ export default {
         this.selectedDate1 &&
         this.selectedDate1 !== '' &&
         this.selectedDate2 &&
-        this.selectedDate2 !== '' &&
-        !isSameMonth(this.selectedDate2, this.selectedDate1)
+        this.selectedDate2 !== ''
       )
     },
     noMonthsSelected() {
@@ -503,13 +502,11 @@ export default {
         }
       }
     },
-
     selectMonth(month) {
-      if (
-        this.isBeforeMinMonth(month.firstDay) ||
+      if (this.isBeforeMinMonth(month.firstDay) ||
         this.isAfterMaxMonth(month.firstDay) ||
         this.isMonthDisabled(month.firstDay)) {
-        return
+        return false
       }
 
       if (this.mode === 'single') {
@@ -520,9 +517,11 @@ export default {
         return
       } else {
         if (isSameMonth(this.selectedDate1, month.firstDay)) {
-          this.selectedDate1 = ''
-          this.selectedDate2 = ''
-          this.isSelectingDate1 = true
+          this.selectedDate1 = month.firstDay
+          this.selectedDate2 = month.lastDay
+          this.$emit('input', [this.selectedDate1, this.selectedDate2])
+          this.apply()
+          return
         } else {
           if (this.isSelectingDate1 || isBefore(month.firstDay, this.selectedDate1)) {
             this.selectedDate1 = month.firstDay
@@ -559,10 +558,10 @@ export default {
       }
       return (
         (isAfter(month.firstDay, this.selectedDate1) &&
-      isBefore(month.lastDay, this.selectedDate2)) ||
-    (isAfter(month.firstDay, this.selectedDate1) &&
-      isBefore(month.firstDay, this.hoverMonth) &&
-      !this.allMonthsSelected)
+        isBefore(month.lastDay, this.selectedDate2)) ||
+      (isAfter(month.firstDay, this.selectedDate1) &&
+        isBefore(month.firstDay, this.hoverMonth) &&
+        !this.allMonthsSelected)
       )
     },
     isBeforeMinMonth(month) {

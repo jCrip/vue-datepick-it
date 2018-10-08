@@ -23,6 +23,22 @@
           />
         </div>
       </div>
+      <div class="datepicker-container with-input">
+        <h3>Range datepicker with input Test</h3>
+        <div class="datepicker-trigger">
+          <input
+            type="text"
+            id="datepicker-input-trigger-test"
+            :value="formatDates(multipleDatesTest)"
+            placeholder="Select dates"
+          >
+          <datepick-it
+            :trigger-element-id="'datepicker-input-trigger-test'"
+            v-model="multipleDatesTest"
+            :min-date="'2018-06-14'"
+          />
+        </div>
+      </div>
 
       <div class="datepicker-container single-with-input">
         <h3>Single datepicker with input</h3>
@@ -279,11 +295,14 @@
 <script>
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
+import isSameMonth from 'date-fns/is_same_month'
+
 var es = require('date-fns/locale/es')
 
 export default {
   data() {
     return {
+      multipleDatesTest: ['', ''],
       dateFormat: 'DD MMMM YYYY', //'D MMM',
       monthFormat: 'MMMM YYYY', //'D MMM',
       yearFormat: 'YYYY',
@@ -332,6 +351,7 @@ export default {
     }
   },
   created() {
+    console.log(parse('2018-06-14'))
     // setTimeout(() => {
     //   this.inputDateOne = '2019-01-12'
     //   this.inputDateTwo = '2019-01-15'
@@ -360,7 +380,7 @@ export default {
       if (Dates[0]) {
         formattedDates = format(Dates[0], this.monthFormat, {locale: es})
       }
-      if (Dates[1]) {
+      if (Dates[1] && !isSameMonth(Dates[0], Dates[1])) {
         formattedDates += ' - ' + format(Dates[1], this.monthFormat, {locale: es})
       }
       return formattedDates

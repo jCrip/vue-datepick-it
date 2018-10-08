@@ -111,7 +111,7 @@ export default {
     offsetX: { type: Number, default: 0 },
     monthsToShow: { type: Number, default: 2 },
     startOpen: { type: Boolean },
-    fullscreenMobile: { type: Boolean },
+    fullscreenMobile: { type: Boolean, default: true },
     inline: { type: Boolean },
     mobileHeader: { type: String, default: 'Select date' },
     disabledDates: { type: Array, default: () => [] },
@@ -473,7 +473,7 @@ export default {
       } else {
         startDate = new Date()
       }
-      if (this.hasMinDate && isBefore(startDate, this.minDate)) {
+      if (this.hasMinDate && isBefore(this.minDate, startDate)) {
         startDate = this.minDate
       }
       this.startingDate = this.subtractMonths(startDate)
