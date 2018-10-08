@@ -473,7 +473,7 @@ export default {
       } else {
         startDate = new Date()
       }
-      if (this.hasMinDate && isBefore(startDate, this.minDate)) {
+      if (this.hasMinDate && isBefore(this.minDate, startDate)) {
         startDate = this.minDate
       }
       this.startingDate = this.subtractMonths(startDate)

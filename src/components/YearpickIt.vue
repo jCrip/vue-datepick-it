@@ -478,9 +478,11 @@ export default {
         return
       }
       if (isSameYear(this.selectedDate1, year.firstDay)) {
-        this.selectedDate1 = ''
-        this.selectedDate2 = ''
-        this.isSelectingDate1 = true
+        this.selectedDate1 = year.firstDay
+        this.selectedDate2 = year.lastDay
+        this.$emit('input', [this.selectedDate1, this.selectedDate2])
+        this.apply()
+        return
       } else {
         if (this.isSelectingDate1 || isBefore(year.firstDay, this.selectedDate1)) {
           this.selectedDate1 = year.firstDay

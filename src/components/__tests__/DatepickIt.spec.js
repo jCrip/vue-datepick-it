@@ -137,7 +137,7 @@ describe('DatepickIt', () => {
       })
     })
     test('month of minDate is shown first', () => {
-      wrapper = createDatePickItInstance({ minDate: '2018-06-14', value: ['', ''] })
+      wrapper = createDatePickItInstance({ minDate: '2018-06-14', value: ['','']})
       const firstVisibleMonth = wrapper.vm.months[0]
       expect(firstVisibleMonth.monthNumber).toBe(5)
     })
