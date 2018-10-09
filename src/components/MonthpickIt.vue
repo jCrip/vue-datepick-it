@@ -106,6 +106,7 @@ import { debounce, copyObject, findAncestor, randomString } from './../helpers'
 export default {
   name: 'MonthpickIt',
   props: {
+    label: { type: String, default: 'date' },
     triggerElementId: { type: String },
     minMonth: { type: [String, Date] },
     maxMonth: { type: [String, Date] },
@@ -660,8 +661,7 @@ export default {
         this.triggerWrapperPosition = { left: 0, right: 0 }
       }
 
-      const viewportWidth =
-  document.documentElement.clientWidth || window.innerWidth
+      const viewportWidth = document.documentElement.clientWidth || window.innerWidth
       this.viewportWidth = viewportWidth + 'px'
       this.isMobile = viewportWidth < 768
       this.isTablet = viewportWidth >= 768 && viewportWidth <= 1024
@@ -675,11 +675,21 @@ export default {
           return
         }
 
-        const rightPosition =
-    this.triggerElement.getBoundingClientRect().left +
-    monthpickerWrapper.getBoundingClientRect().width
+        const rightPosition = this.triggerElement.getBoundingClientRect().left + monthpickerWrapper.getBoundingClientRect().width
         this.alignRight = rightPosition > viewportWidth
       })
+    }
+  },
+  $_veeValidate: {
+    value() {
+      let invalid = this.value.some(elem => !elem || /^\s*$/.test(elem))
+      if (invalid) {
+        return null
+      }
+      return this.value
+    },
+    name() {
+      return this.label
     }
   }
 }

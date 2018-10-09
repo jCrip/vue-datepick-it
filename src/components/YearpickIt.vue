@@ -89,6 +89,7 @@ import { debounce, copyObject, findAncestor, randomString } from './../helpers'
 export default {
   name: 'YearpickIt',
   props: {
+    label: { type: String, default: 'date' },
     triggerElementId: { type: String },
     minYear: { type: [String, Date] },
     maxYear: { type: [String, Date] },
@@ -325,14 +326,14 @@ export default {
         this.closeYearpicker()
       } else if (
         event.keyCode === keys.arrowRight &&
-    !event.shiftKey &&
-    this.showYearpicker
+        !event.shiftKey &&
+        this.showYearpicker
       ) {
         this.nextYearWrapper()
       } else if (
         event.keyCode === keys.arrowLeft &&
-    !event.shiftKey &&
-    this.showYearpicker
+        !event.shiftKey &&
+        this.showYearpicker
       ) {
         this.previousYearWrapper()
       } else {
@@ -513,7 +514,7 @@ export default {
       return (
         (isAfter(year.firstDay, this.selectedDate1) &&
       isBefore(year.lastDay, this.selectedDate2)) ||
-    (isAfter(year.firstDay, this.selectedDate1) &&
+      (isAfter(year.firstDay, this.selectedDate1) &&
       isBefore(year.firstDay, this.hoverYear) &&
       !this.allYearsSelected)
       )
@@ -539,8 +540,8 @@ export default {
     isDisabled(year) {
       return (
         this.isYearDisabled(year) ||
-    this.isBeforeMinYear(year) ||
-    this.isAfterMaxYear(year)
+        this.isBeforeMinYear(year) ||
+        this.isAfterMaxYear(year)
       )
     },
     previousYearWrapper() {
@@ -608,8 +609,7 @@ export default {
         this.triggerWrapperPosition = { left: 0, right: 0 }
       }
 
-      const viewportWidth =
-  document.documentElement.clientWidth || window.innerWidth
+      const viewportWidth = document.documentElement.clientWidth || window.innerWidth
       this.viewportWidth = viewportWidth + 'px'
       this.isMobile = viewportWidth < 768
       this.isTablet = viewportWidth >= 768 && viewportWidth <= 1024
@@ -623,11 +623,21 @@ export default {
           return
         }
 
-        const rightPosition =
-    this.triggerElement.getBoundingClientRect().left +
-    monthpickerWrapper.getBoundingClientRect().width
+        const rightPosition = this.triggerElement.getBoundingClientRect().left + monthpickerWrapper.getBoundingClientRect().width
         this.alignRight = rightPosition > viewportWidth
       })
+    }
+  },
+  $_veeValidate: {
+    value() {
+      let invalid = this.value.some(elem => !elem || /^\s*$/.test(elem))
+      if (invalid) {
+        return null
+      }
+      return this.value
+    },
+    name() {
+      return this.label
     }
   }
 }

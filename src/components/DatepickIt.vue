@@ -103,6 +103,7 @@ import { debounce, copyObject, findAncestor, randomString } from './../helpers'
 export default {
   name: 'DatepickIt',
   props: {
+    label: { type: String, default: 'date' },
     triggerElementId: { type: String },
     minDate: { type: [String, Date] },
     endDate: { type: [String, Date] },
@@ -717,6 +718,18 @@ export default {
           datepickerWrapper.getBoundingClientRect().width
         this.alignRight = rightPosition > viewportWidth
       })
+    }
+  },
+  $_veeValidate: {
+    value() {
+      let invalid = this.value.some(elem => !elem || /^\s*$/.test(elem))
+      if (invalid) {
+        return null
+      }
+      return this.value
+    },
+    name() {
+      return this.label
     }
   }
 }
